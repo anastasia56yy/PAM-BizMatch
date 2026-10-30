@@ -10,7 +10,11 @@ import '../widgets/skill_chips.dart';
 class ProfileDetailScreen extends StatelessWidget {
   final int id;
 
-  const ProfileDetailScreen({super.key, required this.id});
+  /// Вкладка, из которой открыт профиль: '/discover' или '/matches'.
+  final String basePath;
+
+  const ProfileDetailScreen(
+      {super.key, required this.id, required this.basePath});
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +98,7 @@ class ProfileDetailScreen extends StatelessWidget {
           SkillChips(skills: profile.skills),
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: () => context.push('/profiles/$id/meet'),
+            onPressed: () => context.push('$basePath/$id/meet'),
             icon: const Icon(Icons.event_available),
             label: const Text('Предложить встречу'),
           ),

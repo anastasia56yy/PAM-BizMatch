@@ -84,7 +84,7 @@ class MatchesScreen extends StatelessWidget {
                 profile: p,
                 showReason: true,
                 // зайду и вернусь → push; в адресе путешествует только id
-                onTap: () => context.push('/profiles/${p.id}'),
+                onTap: () => context.push('/matches/${p.id}'),
               ),
             ),
         ],

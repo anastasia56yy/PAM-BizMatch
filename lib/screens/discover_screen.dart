@@ -97,7 +97,7 @@ class _SwipeCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 SkillChips(skills: profile.skills),
                 TextButton.icon(
-                  onPressed: () => context.push('/profiles/${profile.id}'),
+                  onPressed: () => context.push('/discover/${profile.id}'),
                   icon: const Icon(Icons.person_search),
                   label: const Text('Подробнее о профиле'),
                 ),
