@@ -5,12 +5,13 @@ import '../widgets/initials_avatar.dart';
 
 /// Форма-макет «Предложить встречу» (валидация придёт на L3).
 class MeetingRequestScreen extends StatelessWidget {
-  final Profile profile;
+  final int profileId;
 
-  const MeetingRequestScreen({super.key, required this.profile});
+  const MeetingRequestScreen({super.key, required this.profileId});
 
   @override
   Widget build(BuildContext context) {
+    final profile = profileById(profileId);
     return Scaffold(
       appBar: AppBar(title: const Text('Предложить встречу')),
       body: ListView(

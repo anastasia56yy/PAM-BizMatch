@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 import '../widgets/profile_card.dart';
-import 'ai_brief_screen.dart';
 
 /// «ИИ-подбор»: рейтинг лучших кандидатов + поиск и фильтр по цели.
 class MatchesScreen extends StatelessWidget {
@@ -43,10 +43,7 @@ class MatchesScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonalIcon(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AiBriefScreen()),
-                    ),
+                    onPressed: () => context.push('/matches/brief'),
                     icon: const Icon(Icons.edit_note),
                     label: const Text('Уточнить запрос'),
                   ),

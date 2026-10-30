@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 import '../widgets/initials_avatar.dart';
 import '../widgets/match_score_badge.dart';
 import '../widgets/skill_chips.dart';
-import 'profile_detail_screen.dart';
 
 /// «Знакомства»: свайп-карточки в стиле Tinder, отсортированные ИИ.
 class DiscoverScreen extends StatelessWidget {
@@ -97,11 +97,7 @@ class _SwipeCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 SkillChips(skills: profile.skills),
                 TextButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => ProfileDetailScreen(profile: profile)),
-                  ),
+                  onPressed: () => context.push('/profiles/${profile.id}'),
                   icon: const Icon(Icons.person_search),
                   label: const Text('Подробнее о профиле'),
                 ),

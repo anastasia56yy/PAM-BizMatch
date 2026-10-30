@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 import '../widgets/info_row.dart';
 import '../widgets/initials_avatar.dart';
 import '../widgets/skill_chips.dart';
-import 'edit_profile_screen.dart';
 
 class MyProfileScreen extends StatelessWidget {
   const MyProfileScreen({super.key});
@@ -19,10 +19,7 @@ class MyProfileScreen extends StatelessWidget {
         title: const Text('Мой профиль'),
         actions: [
           IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const EditProfileScreen()),
-            ),
+            onPressed: () => context.push('/profile/edit'),
             icon: const Icon(Icons.edit),
             tooltip: 'Редактировать',
           ),

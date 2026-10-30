@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 import '../widgets/initials_avatar.dart';
-import 'chat_screen.dart';
 
 /// «Контакты»: взаимные знакомства и переписка с ними.
 class ChatsScreen extends StatelessWidget {
@@ -36,10 +36,7 @@ class ChatsScreen extends StatelessWidget {
                   ),
               ],
             ),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => ChatScreen(conversation: c)),
-            ),
+            onTap: () => context.push('/chats/${c.id}'),
           );
         },
       ),

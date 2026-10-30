@@ -4,14 +4,14 @@ import '../data/mock_data.dart';
 import '../widgets/initials_avatar.dart';
 
 class ChatScreen extends StatelessWidget {
-  final Conversation conversation;
+  final int conversationId;
 
-  const ChatScreen({super.key, required this.conversation});
+  const ChatScreen({super.key, required this.conversationId});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final p = conversation.profile;
+    final p = conversationById(conversationId).profile;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,

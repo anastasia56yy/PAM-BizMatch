@@ -14,6 +14,7 @@ enum Goal {
 }
 
 class Profile {
+  final int id; // L3: идентичность, которая путешествует в адресе /…/:id
   final String name;
   final String title;
   final String company;
@@ -31,6 +32,7 @@ class Profile {
   final String aiReason;
 
   const Profile(
+    this.id,
     this.name,
     this.title,
     this.company,
@@ -47,6 +49,7 @@ class Profile {
 
 const mockProfiles = [
   Profile(
+    1,
     'Ирина Чобану',
     'Partner, Venture Capital',
     'Moldova Growth Fund',
@@ -62,6 +65,7 @@ const mockProfiles = [
         'проекта; 3 общих контакта.',
   ),
   Profile(
+    2,
     'Андрей Попеску',
     'CTO & Co-founder',
     'LogiTrack SRL',
@@ -77,6 +81,7 @@ const mockProfiles = [
         'отрасль B2B, как у вас.',
   ),
   Profile(
+    3,
     'Мария Русу',
     'Head of Marketing',
     'Orange Moldova',
@@ -92,6 +97,7 @@ const mockProfiles = [
         'интерес к tech-аудитории.',
   ),
   Profile(
+    4,
     'Victor Lungu',
     'Founder',
     'AgroSense',
@@ -107,6 +113,7 @@ const mockProfiles = [
         'пробел.',
   ),
   Profile(
+    5,
     'Елена Морару',
     'HR Director',
     'Endava Moldova',
@@ -121,6 +128,7 @@ const mockProfiles = [
     'Активно нанимает тимлидов — совпадает с вашим профилем и городом.',
   ),
   Profile(
+    6,
     'Сергей Ботнарь',
     'Managing Director',
     'Bridge Consulting Group',
@@ -136,6 +144,7 @@ const mockProfiles = [
         'другая отрасль.',
   ),
   Profile(
+    7,
     'Ana Ceban',
     'Product Manager',
     'Maib',
@@ -150,6 +159,7 @@ const mockProfiles = [
     'Ищет пилоты для open API — возможна интеграция с вашим продуктом.',
   ),
   Profile(
+    8,
     'Дмитрий Гуцу',
     'Sales Lead',
     'Retail Systems Ltd.',
@@ -165,25 +175,28 @@ const mockProfiles = [
   ),
 ];
 
+Profile profileById(int id) => mockProfiles.firstWhere((p) => p.id == id);
+
 /// Фильтры экрана подбора (визуальные на L2).
 const goalFilters = ['Все', 'Инвестиции', 'Сооснователь', 'Найм', 'Партнёрство', 'Менторство'];
 
 class Conversation {
+  final int id;
   final Profile profile;
   final String lastMessage;
   final String time;
   final int unread;
 
-  const Conversation(this.profile, this.lastMessage, this.time, this.unread);
+  const Conversation(this.id, this.profile, this.lastMessage, this.time, this.unread);
 }
 
 final mockConversations = [
-  Conversation(mockProfiles[0], 'Пришлите, пожалуйста, pitch deck до пятницы', '10:42', 2),
-  Conversation(mockProfiles[1], 'Давайте созвонимся завтра в 15:00?', '09:15', 1),
-  Conversation(mockProfiles[2], 'Спасибо! Передала коллегам из спонсорского отдела', 'Вчера', 0),
-  Conversation(mockProfiles[3], 'У нас уже 120 платящих ферм, могу показать метрики', 'Вчера', 0),
-  Conversation(mockProfiles[4], 'Отличная идея с хакатоном для студентов UTM', 'Пн', 0),
-  Conversation(mockProfiles[6], 'Документация по API в приложении к письму', '27 окт', 0),
+  Conversation(1, mockProfiles[0], 'Пришлите, пожалуйста, pitch deck до пятницы', '10:42', 2),
+  Conversation(2, mockProfiles[1], 'Давайте созвонимся завтра в 15:00?', '09:15', 1),
+  Conversation(3, mockProfiles[2], 'Спасибо! Передала коллегам из спонсорского отдела', 'Вчера', 0),
+  Conversation(4, mockProfiles[3], 'У нас уже 120 платящих ферм, могу показать метрики', 'Вчера', 0),
+  Conversation(5, mockProfiles[4], 'Отличная идея с хакатоном для студентов UTM', 'Пн', 0),
+  Conversation(6, mockProfiles[6], 'Документация по API в приложении к письму', '27 окт', 0),
 ];
 
 class Message {
@@ -206,6 +219,7 @@ const mockMessages = [
 
 /// Профиль текущего пользователя.
 const myProfile = Profile(
+  0,
   'Анастасия',
   'Business Development Manager',
   'EventFlow SRL',
@@ -219,3 +233,6 @@ const myProfile = Profile(
   100,
   '',
 );
+
+Conversation conversationById(int id) =>
+    mockConversations.firstWhere((c) => c.id == id);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/login_screen.dart';
+import 'router.dart';
 
 void main() => runApp(const BizMatchApp());
 
@@ -9,7 +9,8 @@ class BizMatchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // L3: навигацию принимает router; home: исчезает
+    return MaterialApp.router(
       title: 'BizMatch',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -19,7 +20,7 @@ class BizMatchApp extends StatelessWidget {
           titleLarge: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
-      home: const LoginScreen(),
+      routerConfig: router,
     );
   }
 }

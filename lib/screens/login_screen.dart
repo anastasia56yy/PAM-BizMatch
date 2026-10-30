@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -47,11 +47,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  // L2: только переход, без проверки полей
-                  onPressed: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HomeScreen()),
-                  ),
+                  onPressed: () => context.go('/discover'),
                   child: const Text('Войти'),
                 ),
                 const SizedBox(height: 8),

@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 import '../widgets/info_row.dart';
 import '../widgets/initials_avatar.dart';
 import '../widgets/match_score_badge.dart';
 import '../widgets/skill_chips.dart';
-import 'meeting_request_screen.dart';
 
 class ProfileDetailScreen extends StatelessWidget {
-  final Profile profile;
+  final int id;
 
-  const ProfileDetailScreen({super.key, required this.profile});
+  const ProfileDetailScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    // экран сам ищет свой объект по id из адреса (L4 — Repository, L5 — API)
+    final profile = profileById(id);
     return Scaffold(
       appBar: AppBar(
         title: Text(profile.name),
@@ -92,11 +94,7 @@ class ProfileDetailScreen extends StatelessWidget {
           SkillChips(skills: profile.skills),
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => MeetingRequestScreen(profile: profile)),
-            ),
+            onPressed: () => context.push('/profiles/$id/meet'),
             icon: const Icon(Icons.event_available),
             label: const Text('Предложить встречу'),
           ),
