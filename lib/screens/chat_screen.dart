@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 import '../widgets/initials_avatar.dart';
@@ -21,6 +22,13 @@ class ChatScreen extends StatelessWidget {
           title: Text(p.name, overflow: TextOverflow.ellipsis),
           subtitle: Text(p.company, overflow: TextOverflow.ellipsis),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => _deleteContact(context, p.name),
+            icon: const Icon(Icons.person_remove_outlined),
+            tooltip: 'Удалить контакт',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -74,7 +82,10 @@ class ChatScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                      onPressed: () {}, icon: const Icon(Icons.send)),
+                      onPressed: () => ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(
+                              content: Text('Сообщение отправлено'))),
+                      icon: const Icon(Icons.send)),
                 ],
               ),
             ),
@@ -82,5 +93,29 @@ class ChatScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _deleteContact(BuildContext context, String name) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Удалить контакт?'),
+        content: Text('Переписка с $name будет удалена без возможности '
+            'восстановления.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogCtx, false),
+              child: const Text('Отмена')),
+          FilledButton(
+              onPressed: () => Navigator.pop(dialogCtx, true),
+              child: const Text('Удалить')),
+        ],
+      ),
+    );
+    if (ok == true && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Контакт $name удалён')));
+      context.pop();
+    }
   }
 }

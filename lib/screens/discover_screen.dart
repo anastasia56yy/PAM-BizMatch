@@ -31,6 +31,12 @@ class DiscoverScreen extends StatelessWidget {
   }
 }
 
+void _notify(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+}
+
 class _SwipeCard extends StatelessWidget {
   final Profile profile;
 
@@ -111,19 +117,22 @@ class _SwipeCard extends StatelessWidget {
               children: [
                 IconButton.outlined(
                   iconSize: 32,
-                  onPressed: () {},
+                  onPressed: () =>
+                      _notify(context, 'Профиль ${profile.name} пропущен'),
                   icon: const Icon(Icons.close),
                   tooltip: 'Пропустить',
                 ),
                 IconButton.filledTonal(
                   iconSize: 28,
-                  onPressed: () {},
+                  onPressed: () =>
+                      _notify(context, '${profile.name} — в избранном'),
                   icon: const Icon(Icons.star_outline),
                   tooltip: 'В избранное',
                 ),
                 IconButton.filled(
                   iconSize: 32,
-                  onPressed: () {},
+                  onPressed: () => _notify(context,
+                      'Запрос на знакомство отправлен: ${profile.name}'),
                   icon: const Icon(Icons.handshake),
                   tooltip: 'Хочу познакомиться',
                 ),

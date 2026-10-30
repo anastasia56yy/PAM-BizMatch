@@ -73,18 +73,41 @@ class MyProfileScreen extends StatelessWidget {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: true,
-            onChanged: (_) {},
+            onChanged: (_) => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Настройка видимости сохранена'))),
             title: const Text('Показывать меня в ИИ-подборе'),
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => _logout(context),
             icon: const Icon(Icons.logout),
             label: const Text('Выйти из аккаунта'),
           ),
         ],
       ),
     );
+  }
+}
+
+/// Блокирующее решение → AlertDialog с результатом.
+Future<void> _logout(BuildContext context) async {
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (dialogCtx) => AlertDialog(
+      title: const Text('Выйти из аккаунта?'),
+      content: const Text('Подбор и переписка останутся сохранены.'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Нет')),
+        FilledButton(
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: const Text('Да, выйти')),
+      ],
+    ),
+  );
+  if (ok == true && context.mounted) {
+    context.go('/login'); // go: раздел с вкладками уходит из стека
   }
 }
 

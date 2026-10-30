@@ -26,7 +26,11 @@ class ProfileDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(profile.name),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.star_outline)),
+          IconButton(
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${profile.name} — в избранном'))),
+            icon: const Icon(Icons.star_outline),
+          ),
         ],
       ),
       body: ListView(
