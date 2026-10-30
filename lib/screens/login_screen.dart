@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'home_screen.dart';
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -45,7 +47,11 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: () {},
+                  // L2: только переход, без проверки полей
+                  onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  ),
                   child: const Text('Войти'),
                 ),
                 const SizedBox(height: 8),
