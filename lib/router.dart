@@ -13,7 +13,7 @@ import 'screens/profile_detail_screen.dart';
 import 'widgets/app_shell.dart';
 
 /// Под-маршруты профиля, общие для вкладок «Знакомства» и «ИИ-подбор»:
-/// <base>/:id — детали, <base>/:id/meet — форма встречи.
+/// `base/:id` — детали, `base/:id/meet` — форма встречи.
 List<RouteBase> _profileRoutes(String base) => [
       GoRoute(
         path: ':id', // полный адрес: /discover/3 или /matches/3
