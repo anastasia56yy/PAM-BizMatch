@@ -80,7 +80,12 @@ class MatchesScreen extends StatelessWidget {
           for (final p in mockProfiles)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: ProfileCard(profile: p, showReason: true),
+              child: ProfileCard(
+                profile: p,
+                showReason: true,
+                // зайду и вернусь → push; в адресе путешествует только id
+                onTap: () => context.push('/profiles/${p.id}'),
+              ),
             ),
         ],
       ),

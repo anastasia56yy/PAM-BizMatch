@@ -100,12 +100,23 @@ class ProfileDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => _openChat(context),
             icon: const Icon(Icons.chat_bubble_outline),
             label: const Text('Написать сообщение'),
           ),
         ],
       ),
     );
+  }
+
+  void _openChat(BuildContext context) {
+    final chat = mockConversations.where((c) => c.profile.id == id).firstOrNull;
+    if (chat != null) {
+      context.go('/chats/${chat.id}'); // прыжок в другой раздел → go
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Запрос на контакт отправлен — чат откроется '
+              'после взаимного согласия')));
+    }
   }
 }

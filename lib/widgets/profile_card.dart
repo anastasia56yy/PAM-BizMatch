@@ -8,8 +8,10 @@ import 'match_score_badge.dart';
 class ProfileCard extends StatelessWidget {
   final Profile profile;
   final bool showReason;
+  final VoidCallback? onTap;
 
-  const ProfileCard({super.key, required this.profile, this.showReason = false});
+  const ProfileCard(
+      {super.key, required this.profile, this.showReason = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +20,7 @@ class ProfileCard extends StatelessWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
