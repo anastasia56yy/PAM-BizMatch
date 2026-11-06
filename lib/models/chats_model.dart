@@ -26,7 +26,11 @@ class ChatsModel extends ChangeNotifier {
   Conversation? byProfileId(int profileId) =>
       _conversations.where((c) => c.profileId == profileId).firstOrNull;
 
-  Future<void> load() async {
+  Future<void>? _loadDone; // текущая загрузка — её можно дождаться
+
+  Future<void> load() => _loadDone = _load();
+
+  Future<void> _load() async {
     _loading = true;
     _error = null;
     notifyListeners();
@@ -43,6 +47,11 @@ class ChatsModel extends ChangeNotifier {
   /// «Хочу познакомиться»: новый контакт в начале списка.
   /// Уже есть переписка — ничего не создаём.
   Future<String?> startChat(Profile profile) async {
+    // модель создаётся лениво: при первом вызове список может ещё грузиться —
+    // ждём его, иначе не увидим существующую переписку и создадим дубль
+    await (_loadDone ?? load());
+    if (_error != null) await load(); // прошлая загрузка упала — ещё раз
+    if (_error != null) return _error;
     if (byProfileId(profile.id) != null) return null;
     final draft = Conversation(0, profile.id, profile.name, profile.company,
         'Вы начали знакомство', _now(), 0, const []);

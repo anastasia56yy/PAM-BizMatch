@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:biz_match/data/meeting.dart';
 import 'package:biz_match/data/mock_repositories.dart';
+import 'package:biz_match/data/profile.dart';
+import 'package:biz_match/models/chats_model.dart';
 import 'package:biz_match/models/meetings_model.dart';
 import 'package:biz_match/models/profiles_model.dart';
 import 'package:biz_match/models/shortlist_model.dart';
@@ -90,5 +92,15 @@ void main() {
     expect(model.count, 1);
     expect(model.toggle(3), isFalse);
     expect(model.count, 0);
+  });
+
+  test('startChat сразу после создания модели не плодит дубль', () async {
+    final chats = ChatsModel(MockConversationRepository(network));
+    chats.load(); // как ..load() в корне: загрузка ещё идёт
+    const irina = Profile(1, 'Ирина Чобану', '', 'Moldova Growth Fund', '',
+        'Кишинёв', Goal.investor, 14, [], '', 96, '');
+
+    expect(await chats.startChat(irina), isNull);
+    expect(chats.conversations.where((c) => c.profileId == 1).length, 1);
   });
 }
