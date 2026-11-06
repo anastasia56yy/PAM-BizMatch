@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 import '../widgets/profile_card.dart';
+import '../widgets/shortlist_button.dart';
 
 /// «ИИ-подбор»: рейтинг лучших кандидатов + поиск и фильтр по цели.
 class MatchesScreen extends StatelessWidget {
@@ -13,7 +14,10 @@ class MatchesScreen extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('ИИ-подбор')),
+      appBar: AppBar(
+        title: const Text('ИИ-подбор'),
+        actions: const [ShortlistButton(basePath: '/matches')],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

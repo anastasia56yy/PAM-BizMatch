@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'models/shortlist_model.dart';
 import 'router.dart';
 
-void main() => runApp(const BizMatchApp());
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        // фабрика, а не экземпляр: Provider создаёт лениво и сам вызывает dispose
+        ChangeNotifierProvider(create: (_) => ShortlistModel()),
+      ],
+      child: const BizMatchApp(), // MaterialApp.router — нетронут с L3
+    ),
+  );
+}
 
 class BizMatchApp extends StatelessWidget {
   const BizMatchApp({super.key});

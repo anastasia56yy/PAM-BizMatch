@@ -5,6 +5,7 @@ import 'screens/chat_screen.dart';
 import 'screens/chats_screen.dart';
 import 'screens/discover_screen.dart';
 import 'screens/edit_profile_screen.dart';
+import 'screens/favorites_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/matches_screen.dart';
 import 'screens/meeting_request_screen.dart';
@@ -13,8 +14,12 @@ import 'screens/profile_detail_screen.dart';
 import 'widgets/app_shell.dart';
 
 /// Под-маршруты профиля, общие для вкладок «Знакомства» и «ИИ-подбор»:
-/// `base/:id` — детали, `base/:id/meet` — форма встречи.
+/// `base/favorites` — избранное, `base/:id` — детали, `base/:id/meet` — встреча.
 List<RouteBase> _profileRoutes(String base) => [
+      GoRoute(
+        path: 'favorites', // ФИКСИРОВАННЫЙ — перед ':id'
+        builder: (context, state) => FavoritesScreen(basePath: base),
+      ),
       GoRoute(
         path: ':id', // полный адрес: /discover/3 или /matches/3
         builder: (context, state) {

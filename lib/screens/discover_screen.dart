@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../data/mock_data.dart';
+import '../models/shortlist_model.dart';
 import '../widgets/initials_avatar.dart';
 import '../widgets/match_score_badge.dart';
+import '../widgets/shortlist_button.dart';
 import '../widgets/skill_chips.dart';
 
 /// «Знакомства»: свайп-карточки в стиле Tinder, отсортированные ИИ.
@@ -15,9 +18,7 @@ class DiscoverScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Знакомства'),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.tune)),
-        ],
+        actions: const [ShortlistButton(basePath: '/discover')],
       ),
       body: PageView.builder(
         controller: PageController(viewportFraction: 0.9),
@@ -46,6 +47,8 @@ class _SwipeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    // watch в build: звезда закрашивается, как только профиль в избранном
+    final starred = context.watch<ShortlistModel>().contains(profile.id);
     return Card(
       elevation: 3,
       clipBehavior: Clip.antiAlias,
@@ -124,9 +127,13 @@ class _SwipeCard extends StatelessWidget {
                 ),
                 IconButton.filledTonal(
                   iconSize: 28,
-                  onPressed: () =>
-                      _notify(context, '${profile.name} — в избранном'),
-                  icon: const Icon(Icons.star_outline),
+                  // read в callback-е: действие
+                  onPressed: () => _notify(
+                      context,
+                      context.read<ShortlistModel>().toggle(profile.id)
+                          ? '${profile.name} — в избранном'
+                          : '${profile.name} — убран(а) из избранного'),
+                  icon: Icon(starred ? Icons.star : Icons.star_outline),
                   tooltip: 'В избранное',
                 ),
                 IconButton.filled(

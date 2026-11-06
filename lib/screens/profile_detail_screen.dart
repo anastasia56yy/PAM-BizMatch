@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../data/mock_data.dart';
+import '../models/shortlist_model.dart';
 import '../widgets/info_row.dart';
 import '../widgets/initials_avatar.dart';
 import '../widgets/match_score_badge.dart';
@@ -22,14 +24,21 @@ class ProfileDetailScreen extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     // экран сам ищет свой объект по id из адреса (L4 — Repository, L5 — API)
     final profile = profileById(id);
+    final starred = context.watch<ShortlistModel>().contains(id);
     return Scaffold(
       appBar: AppBar(
         title: Text(profile.name),
         actions: [
           IconButton(
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${profile.name} — в избранном'))),
-            icon: const Icon(Icons.star_outline),
+            tooltip: 'В избранное',
+            onPressed: () {
+              final added = context.read<ShortlistModel>().toggle(id);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(added
+                      ? '${profile.name} — в избранном'
+                      : '${profile.name} — убран(а) из избранного')));
+            },
+            icon: Icon(starred ? Icons.star : Icons.star_outline),
           ),
         ],
       ),
