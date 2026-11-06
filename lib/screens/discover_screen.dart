@@ -2,33 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
 import '../data/profile.dart';
+import '../models/chats_model.dart';
+import '../models/profiles_model.dart';
 import '../models/shortlist_model.dart';
+import '../widgets/error_view.dart';
 import '../widgets/initials_avatar.dart';
 import '../widgets/match_score_badge.dart';
 import '../widgets/shortlist_button.dart';
 import '../widgets/skill_chips.dart';
 
 /// «Знакомства»: свайп-карточки в стиле Tinder, отсортированные ИИ.
-class DiscoverScreen extends StatelessWidget {
+class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
 
   @override
+  State<DiscoverScreen> createState() => _DiscoverScreenState();
+}
+
+class _DiscoverScreenState extends State<DiscoverScreen> {
+  // эфемерное состояние: какая карточка на экране — знает только этот экран
+  final _pages = PageController(viewportFraction: 0.9);
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  void _next() => _pages.nextPage(
+      duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+
+  @override
   Widget build(BuildContext context) {
+    final model = context.watch<ProfilesModel>(); // watch в build (C7)
+    final Widget body;
+    if (model.isLoading) {
+      body = const LoadingView(); // 1) грузится
+    } else if (model.error != null) {
+      body = ErrorView(
+          message: model.error!, // 2) упало
+          onRetry: () => context.read<ProfilesModel>().load()); // read: действие
+    } else {
+      final profiles = model.profiles; // 3) данные
+      body = PageView.builder(
+        controller: _pages,
+        itemCount: profiles.length,
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.fromLTRB(6, 8, 6, 24),
+          child: _SwipeCard(profile: profiles[index], onSkip: _next),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Знакомства'),
         actions: const [ShortlistButton(basePath: '/discover')],
       ),
-      body: PageView.builder(
-        controller: PageController(viewportFraction: 0.9),
-        itemCount: mockProfiles.length,
-        itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.fromLTRB(6, 8, 6, 24),
-          child: _SwipeCard(profile: mockProfiles[index]),
-        ),
-      ),
+      body: body,
     );
   }
 }
@@ -41,8 +72,15 @@ void _notify(BuildContext context, String message) {
 
 class _SwipeCard extends StatelessWidget {
   final Profile profile;
+  final VoidCallback onSkip;
 
-  const _SwipeCard({required this.profile});
+  const _SwipeCard({required this.profile, required this.onSkip});
+
+  Future<void> _meet(BuildContext context) async {
+    final error = await context.read<ChatsModel>().startChat(profile);
+    if (!context.mounted) return; // экран мог умереть, пока «запрос» летел
+    _notify(context, error ?? '${profile.name} — в ваших контактах');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +159,7 @@ class _SwipeCard extends StatelessWidget {
               children: [
                 IconButton.outlined(
                   iconSize: 32,
-                  onPressed: () =>
-                      _notify(context, 'Профиль ${profile.name} пропущен'),
+                  onPressed: onSkip,
                   icon: const Icon(Icons.close),
                   tooltip: 'Пропустить',
                 ),
@@ -139,8 +176,7 @@ class _SwipeCard extends StatelessWidget {
                 ),
                 IconButton.filled(
                   iconSize: 32,
-                  onPressed: () => _notify(context,
-                      'Запрос на знакомство отправлен: ${profile.name}'),
+                  onPressed: () => _meet(context),
                   icon: const Icon(Icons.handshake),
                   tooltip: 'Хочу познакомиться',
                 ),
