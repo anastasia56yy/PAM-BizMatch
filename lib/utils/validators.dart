@@ -59,7 +59,7 @@ String? validateFutureDate(DateTime? date, {DateTime? now}) {
 /// Минимальная длина осмысленного текста (запрос к ИИ).
 String? validateMinLength(String? value, int min, String what) {
   final v = value?.trim() ?? '';
-  if (v.isEmpty) return '$what обязателен';
+  if (v.isEmpty) return 'Поле «$what» обязательно';
   if (v.length < min) return 'Опишите подробнее: минимум $min символов';
   return null;
 }

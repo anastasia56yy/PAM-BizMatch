@@ -119,7 +119,7 @@ class _MeetingRequestScreenState extends State<MeetingRequestScreen> {
                 hintText: 'Напр.: обсуждение seed-раунда',
                 border: OutlineInputBorder(),
               ),
-              validator: (v) => validateMinLength(v, 5, 'Тема'),
+              validator: (v) => validateMinLength(v, 5, 'Тема встречи'),
             ),
             const SizedBox(height: 16),
             TextFormField(

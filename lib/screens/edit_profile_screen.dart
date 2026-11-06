@@ -178,7 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               maxLength: 300,
               textInputAction: TextInputAction.done,
               decoration: _dec('О себе'),
-              validator: (v) => validateMinLength(v, 30, 'Текст'),
+              validator: (v) => validateMinLength(v, 30, 'О себе'),
             ),
             const SizedBox(height: 8),
             FilledButton(
