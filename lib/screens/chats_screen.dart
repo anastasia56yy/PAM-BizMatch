@@ -56,7 +56,16 @@ class ChatsScreen extends StatelessWidget {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Контакты')),
+      appBar: AppBar(
+        title: const Text('Контакты'),
+        actions: [
+          IconButton(
+            tooltip: 'Обновить',
+            onPressed: () => context.read<ChatsModel>().load(),
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
       body: body,
     );
   }

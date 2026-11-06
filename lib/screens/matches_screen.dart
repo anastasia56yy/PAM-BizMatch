@@ -97,7 +97,14 @@ class _MatchesScreenState extends State<MatchesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ИИ-подбор'),
-        actions: const [ShortlistButton(basePath: '/matches')],
+        actions: [
+          IconButton(
+            tooltip: 'Обновить',
+            onPressed: () => context.read<ProfilesModel>().load(),
+            icon: const Icon(Icons.refresh),
+          ),
+          const ShortlistButton(basePath: '/matches'),
+        ],
       ),
       body: body,
     );
