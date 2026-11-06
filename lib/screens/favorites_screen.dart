@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
+import '../models/profiles_model.dart';
 import '../models/shortlist_model.dart';
+import '../widgets/error_view.dart';
 import '../widgets/profile_card.dart';
 
 /// «Избранное»: профили, отмеченные звездой. Свайп — убрать из избранного.
@@ -16,14 +17,25 @@ class FavoritesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shortlist = context.watch<ShortlistModel>(); // watch в build
-    final profiles = [for (final id in shortlist.ids) profileById(id)];
-    return Scaffold(
-      appBar: AppBar(title: Text('Избранное · ${shortlist.count}')),
-      body: profiles.isEmpty
+    final model = context.watch<ProfilesModel>();
+    final Widget body;
+    if (model.isLoading) {
+      body = const LoadingView();
+    } else if (model.error != null) {
+      body = ErrorView(
+          message: model.error!,
+          onRetry: () => context.read<ProfilesModel>().load());
+    } else {
+      // избранное хранит id, профили — модель кандидатов
+      final profiles = [
+        for (final id in shortlist.ids) ?model.byId(id),
+      ];
+      body = profiles.isEmpty
           ? const Center(
               child: Padding(
                 padding: EdgeInsets.all(32),
-                child: Text('Отмечайте звездой интересных людей — '
+                child: Text(
+                    'Отмечайте звездой интересных людей — '
                     'они появятся здесь.',
                     textAlign: TextAlign.center),
               ),
@@ -57,7 +69,11 @@ class FavoritesScreen extends StatelessWidget {
                   ),
                 );
               },
-            ),
+            );
+    }
+    return Scaffold(
+      appBar: AppBar(title: Text('Избранное · ${shortlist.count}')),
+      body: body,
     );
   }
 }
