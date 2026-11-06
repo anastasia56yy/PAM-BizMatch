@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/profile.dart';
 import 'initials_avatar.dart';
 import 'match_score_badge.dart';
 

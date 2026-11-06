@@ -12,7 +12,7 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final p = conversationById(conversationId).profile;
+    final p = conversationById(conversationId);
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -35,9 +35,9 @@ class ChatScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: mockMessages.length,
+              itemCount: p.messages.length,
               itemBuilder: (context, index) {
-                final m = mockMessages[index];
+                final m = p.messages[index];
                 return Align(
                   alignment:
                       m.fromMe ? Alignment.centerRight : Alignment.centerLeft,

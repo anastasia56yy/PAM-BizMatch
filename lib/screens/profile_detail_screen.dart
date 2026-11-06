@@ -127,7 +127,7 @@ class ProfileDetailScreen extends StatelessWidget {
   }
 
   void _openChat(BuildContext context) {
-    final chat = mockConversations.where((c) => c.profile.id == id).firstOrNull;
+    final chat = mockConversations.where((c) => c.profileId == id).firstOrNull;
     if (chat != null) {
       context.go('/chats/${chat.id}'); // прыжок в другой раздел → go
     } else {

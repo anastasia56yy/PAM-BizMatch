@@ -19,8 +19,8 @@ class ChatsScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final c = mockConversations[index];
           return ListTile(
-            leading: InitialsAvatar(name: c.profile.name),
-            title: Text(c.profile.name),
+            leading: InitialsAvatar(name: c.name),
+            title: Text(c.name),
             subtitle: Text(c.lastMessage,
                 maxLines: 1, overflow: TextOverflow.ellipsis),
             trailing: Column(

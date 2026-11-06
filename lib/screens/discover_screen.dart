@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/mock_data.dart';
+import '../data/profile.dart';
 import '../models/shortlist_model.dart';
 import '../widgets/initials_avatar.dart';
 import '../widgets/match_score_badge.dart';

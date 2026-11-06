@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
+import '../data/profile.dart';
 import '../utils/validators.dart';
 
 /// Редактирование профиля — форма с валидацией (L3).

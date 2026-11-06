@@ -1,51 +1,10 @@
-// Зашитые в код данные, общие для нескольких экранов (L2).
+// Seed — стартовые данные mock-хранилищ (L4). Единственный клиент этого
+// файла — mock_repositories.dart; экраны и модели его не импортируют.
+// На L5 seed умирает вместе с mock-ом, а доменные модели остаются.
 
-/// Цель знакомства — то, что человек ищет на платформе.
-enum Goal {
-  investment('Ищу инвестиции'),
-  investor('Инвестирую'),
-  cofounder('Ищу сооснователя'),
-  hiring('Нанимаю'),
-  partnership('Партнёрство'),
-  mentoring('Менторство');
-
-  final String label;
-  const Goal(this.label);
-}
-
-class Profile {
-  final int id; // L3: идентичность, которая путешествует в адресе /…/:id
-  final String name;
-  final String title;
-  final String company;
-  final String industry;
-  final String city;
-  final Goal goal;
-  final int experienceYears;
-  final List<String> skills;
-  final String about;
-
-  /// Оценка совместимости 0–100, которую выставляет ИИ-подбор.
-  final int aiScore;
-
-  /// Короткое объяснение ИИ: почему этот человек вам подходит.
-  final String aiReason;
-
-  const Profile(
-    this.id,
-    this.name,
-    this.title,
-    this.company,
-    this.industry,
-    this.city,
-    this.goal,
-    this.experienceYears,
-    this.skills,
-    this.about,
-    this.aiScore,
-    this.aiReason,
-  );
-}
+import 'conversation.dart';
+import 'meeting.dart';
+import 'profile.dart';
 
 const mockProfiles = [
   Profile(
@@ -175,38 +134,6 @@ const mockProfiles = [
   ),
 ];
 
-Profile profileById(int id) => mockProfiles.firstWhere((p) => p.id == id);
-
-/// Фильтры экрана подбора (визуальные на L2).
-const goalFilters = ['Все', 'Инвестиции', 'Сооснователь', 'Найм', 'Партнёрство', 'Менторство'];
-
-class Conversation {
-  final int id;
-  final Profile profile;
-  final String lastMessage;
-  final String time;
-  final int unread;
-
-  const Conversation(this.id, this.profile, this.lastMessage, this.time, this.unread);
-}
-
-final mockConversations = [
-  Conversation(1, mockProfiles[0], 'Пришлите, пожалуйста, pitch deck до пятницы', '10:42', 2),
-  Conversation(2, mockProfiles[1], 'Давайте созвонимся завтра в 15:00?', '09:15', 1),
-  Conversation(3, mockProfiles[2], 'Спасибо! Передала коллегам из спонсорского отдела', 'Вчера', 0),
-  Conversation(4, mockProfiles[3], 'У нас уже 120 платящих ферм, могу показать метрики', 'Вчера', 0),
-  Conversation(5, mockProfiles[4], 'Отличная идея с хакатоном для студентов UTM', 'Пн', 0),
-  Conversation(6, mockProfiles[6], 'Документация по API в приложении к письму', '27 окт', 0),
-];
-
-class Message {
-  final bool fromMe;
-  final String text;
-  final String time;
-
-  const Message(this.fromMe, this.text, this.time);
-}
-
 const mockMessages = [
   Message(false, 'Добрый день! ИИ показал нам 96% совпадения — интересно познакомиться.', '10:02'),
   Message(true, 'Здравствуйте, Ирина! Взаимно. Мы строим B2B SaaS для event-индустрии.', '10:05'),
@@ -215,6 +142,45 @@ const mockMessages = [
   Message(false, 'Звучит хорошо. Какие рынки в приоритете после Молдовы?', '10:31'),
   Message(true, 'Румыния и Польша — там уже 4 пилотных клиента.', '10:38'),
   Message(false, 'Пришлите, пожалуйста, pitch deck до пятницы', '10:42'),
+];
+
+final mockConversations = [
+  Conversation(1, 1, 'Ирина Чобану', 'Moldova Growth Fund',
+      'Пришлите, пожалуйста, pitch deck до пятницы', '10:42', 2, mockMessages),
+  Conversation(2, 2, 'Андрей Попеску', 'LogiTrack SRL',
+      'Давайте созвонимся завтра в 15:00?', '09:15', 1,
+      const [Message(false, 'Давайте созвонимся завтра в 15:00?', '09:15')]),
+  Conversation(3, 3, 'Мария Русу', 'Orange Moldova',
+      'Спасибо! Передала коллегам из спонсорского отдела', 'Вчера', 0,
+      const [
+        Message(true, 'Мария, отправила вам спонсорский пакет форума.', 'Вчера'),
+        Message(false, 'Спасибо! Передала коллегам из спонсорского отдела',
+            'Вчера'),
+      ]),
+  Conversation(4, 4, 'Victor Lungu', 'AgroSense',
+      'У нас уже 120 платящих ферм, могу показать метрики', 'Вчера', 0,
+      const [
+        Message(false, 'У нас уже 120 платящих ферм, могу показать метрики',
+            'Вчера'),
+      ]),
+  Conversation(5, 5, 'Елена Морару', 'Endava Moldova',
+      'Отличная идея с хакатоном для студентов UTM', 'Пн', 0,
+      const [
+        Message(true, 'Что скажете о совместном хакатоне со студентами?', 'Пн'),
+        Message(false, 'Отличная идея с хакатоном для студентов UTM', 'Пн'),
+      ]),
+  Conversation(6, 7, 'Ana Ceban', 'Maib',
+      'Документация по API в приложении к письму', '27 окт', 0,
+      const [
+        Message(false, 'Документация по API в приложении к письму', '27 окт'),
+      ]),
+];
+
+final mockMeetings = [
+  Meeting(1, 1, 'Ирина Чобану', 'Обсуждение seed-раунда',
+      DateTime(2026, 11, 12, 15), 45, 'online', 'Подготовлю pitch deck.'),
+  Meeting(2, 3, 'Мария Русу', 'Спонсорство Sales & Marketing Forum',
+      DateTime(2026, 11, 18, 11), 30, 'coffee', ''),
 ];
 
 /// Профиль текущего пользователя.
@@ -232,7 +198,15 @@ const myProfile = Profile(
       'спикеров из банкинга, телекома и IT.',
   100,
   '',
+  email: 'anastasia@eventflow.md',
+  phone: '69123456',
 );
+
+// ── Временные леса: экраны L3 читают seed напрямую, пока не мигрированы на
+// модели (Задание 4). Удаляются вместе с последним мигрированным экраном.
+Profile profileById(int id) => mockProfiles.firstWhere((p) => p.id == id);
 
 Conversation conversationById(int id) =>
     mockConversations.firstWhere((c) => c.id == id);
+
+const goalFilters = ['Все', 'Инвестиции', 'Сооснователь', 'Найм', 'Партнёрство', 'Менторство'];

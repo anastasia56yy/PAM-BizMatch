@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
-import '../data/mock_data.dart';
+import '../data/profile.dart';
 import '../utils/validators.dart';
 
 /// «Запрос к ИИ»: кого именно вы ищете — форма с валидацией (L3).
