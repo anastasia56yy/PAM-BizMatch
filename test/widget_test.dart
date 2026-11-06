@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
+import 'package:biz_match/data/mock_repositories.dart';
 import 'package:biz_match/main.dart';
-import 'package:biz_match/models/shortlist_model.dart';
 
 void main() {
   testWidgets('Неверный вход показывает ошибки, верный — ведёт во вкладки',
       (tester) async {
-    await tester.pumpWidget(ChangeNotifierProvider(
-        create: (_) => ShortlistModel(), child: const BizMatchApp()));
+    await tester.pumpWidget(MultiProvider(
+      providers: appProviders(MockNetwork(latency: Duration.zero)),
+      child: const BizMatchApp(),
+    ));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Войти'));

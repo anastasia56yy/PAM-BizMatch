@@ -1,20 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
+import 'data/mock_repositories.dart';
+import 'models/account_model.dart';
+import 'models/chats_model.dart';
+import 'models/meetings_model.dart';
+import 'models/profiles_model.dart';
 import 'models/shortlist_model.dart';
 import 'router.dart';
 
+/// Корень композиции: ЗДЕСЬ (и только здесь) выбирается источник данных.
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        // фабрика, а не экземпляр: Provider создаёт лениво и сам вызывает dispose
-        ChangeNotifierProvider(create: (_) => ShortlistModel()),
-      ],
-      child: const BizMatchApp(), // MaterialApp.router — нетронут с L3
-    ),
-  );
+  final network = MockNetwork(); // на L5: http-реализации — и всё
+  runApp(MultiProvider(
+    providers: appProviders(network),
+    child: const BizMatchApp(), // MaterialApp.router — нетронут с L3
+  ));
 }
+
+/// Модели получают хранилища через конструктор (DI) и сразу грузятся.
+List<SingleChildWidget> appProviders(MockNetwork network) => [
+      // леса демонстрации аварии (переключатель в профиле) — исчезают на L5
+      Provider<MockNetwork>.value(value: network),
+      ChangeNotifierProvider(
+          create: (_) => ProfilesModel(MockProfileRepository(network))..load()),
+      ChangeNotifierProvider(
+          create: (_) =>
+              ChatsModel(MockConversationRepository(network))..load()),
+      ChangeNotifierProvider(
+          create: (_) => MeetingsModel(MockMeetingRepository(network))..load()),
+      ChangeNotifierProvider(
+          create: (_) => AccountModel(MockAccountRepository(network))..load()),
+      ChangeNotifierProvider(create: (_) => ShortlistModel()),
+    ];
 
 class BizMatchApp extends StatelessWidget {
   const BizMatchApp({super.key});
