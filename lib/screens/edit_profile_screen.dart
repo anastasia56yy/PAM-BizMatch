@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
 import '../data/profile.dart';
+import '../models/account_model.dart';
 import '../utils/validators.dart';
 
-/// Редактирование профиля — форма с валидацией (L3).
+/// Редактирование профиля: валидация L3 + запись через AccountModel (L4).
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -16,16 +17,25 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController(text: myProfile.name);
-  final _titleCtrl = TextEditingController(text: myProfile.title);
-  final _companyCtrl = TextEditingController(text: myProfile.company);
-  final _emailCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
-  final _linkedInCtrl = TextEditingController();
-  final _experienceCtrl =
-      TextEditingController(text: '${myProfile.experienceYears}');
-  final _aboutCtrl = TextEditingController(text: myProfile.about);
-  Goal? _goal = myProfile.goal;
+  // профиль, который правим: берём из модели один раз, при открытии формы
+  late final Profile? _me;
+  late final _nameCtrl = TextEditingController(text: _me?.name);
+  late final _titleCtrl = TextEditingController(text: _me?.title);
+  late final _companyCtrl = TextEditingController(text: _me?.company);
+  late final _emailCtrl = TextEditingController(text: _me?.email);
+  late final _phoneCtrl = TextEditingController(text: _me?.phone);
+  late final _linkedInCtrl = TextEditingController(text: _me?.linkedIn);
+  late final _experienceCtrl =
+      TextEditingController(text: '${_me?.experienceYears ?? ''}');
+  late final _aboutCtrl = TextEditingController(text: _me?.about);
+  late Goal? _goal = _me?.goal;
+  bool _busy = false; // эфемерное: кнопка гаснет, пока «запрос» летит
+
+  @override
+  void initState() {
+    super.initState();
+    _me = context.read<AccountModel>().me; // read — не в build (C7)
+  }
 
   @override
   void dispose() {
@@ -40,11 +50,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _save() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return; // валидация L3, нетронута
+    final updated = _me!.copyWith(
+      name: _nameCtrl.text.trim(),
+      title: _titleCtrl.text.trim(),
+      company: _companyCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
+      phone: _phoneCtrl.text,
+      linkedIn: _linkedInCtrl.text.trim(),
+      goal: _goal,
+      experienceYears: int.parse(_experienceCtrl.text),
+      about: _aboutCtrl.text.trim(),
+    );
+    setState(() => _busy = true);
+    final error = await context.read<AccountModel>().save(updated);
+    if (!mounted) return; // экран может умереть, пока запрос летит
+    setState(() => _busy = false);
+    if (error != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error))); // данные остаются
+      return;
+    }
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Профиль сохранён')));
-    context.pop();
+    context.pop(); // «Мой профиль» позади уже показывает новые данные
   }
 
   InputDecoration _dec(String label, {String? hint, String? prefix}) =>
@@ -59,6 +89,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     const gap = SizedBox(height: 16);
+    if (_me == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Редактировать профиль')),
+        body: const Center(child: Text('Профиль ещё не загружен')),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Редактировать профиль')),
       body: Form(
@@ -145,7 +181,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               validator: (v) => validateMinLength(v, 30, 'Текст'),
             ),
             const SizedBox(height: 8),
-            FilledButton(onPressed: _save, child: const Text('Сохранить')),
+            FilledButton(
+                onPressed: _busy ? null : _save,
+                child: Text(_busy ? 'Сохраняем…' : 'Сохранить')),
           ],
         ),
       ),

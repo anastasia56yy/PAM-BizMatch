@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
+import '../data/meeting.dart';
+import '../models/meetings_model.dart';
+import '../models/profiles_model.dart';
 import '../utils/validators.dart';
 import '../widgets/initials_avatar.dart';
 
-/// «Предложить встречу» — форма, функциональная локально (L3).
+/// «Предложить встречу»: валидация L3 + запись через MeetingsModel (L4).
 class MeetingRequestScreen extends StatefulWidget {
   final int profileId;
 
@@ -24,6 +27,7 @@ class _MeetingRequestScreenState extends State<MeetingRequestScreen> {
   final _messageCtrl = TextEditingController();
   DateTime? _date;
   String? _format;
+  bool _busy = false; // эфемерное: кнопка гаснет, пока «запрос» летит
 
   @override
   void dispose() {
@@ -50,17 +54,49 @@ class _MeetingRequestScreenState extends State<MeetingRequestScreen> {
     }
   }
 
-  void _send() {
-    if (!_formKey.currentState!.validate()) return; // ошибки уже на экране
-    final name = profileById(widget.profileId).name;
+  Future<void> _send() async {
+    if (!_formKey.currentState!.validate()) return; // валидация L3, нетронута
+    final profile = context.read<ProfilesModel>().byId(widget.profileId);
+    if (profile == null) return;
+    final draft = Meeting(
+      0, // временный id — настоящую идентичность даст хранилище
+      profile.id,
+      profile.name,
+      _topicCtrl.text.trim(),
+      _date!,
+      int.parse(_durationCtrl.text),
+      _format!,
+      _messageCtrl.text.trim(),
+    );
+    setState(() => _busy = true);
+    final error = await context.read<MeetingsModel>().add(draft);
+    if (!mounted) return; // экран может умереть, пока запрос летит
+    setState(() => _busy = false);
+    if (error != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error))); // данные остаются
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Запрос на встречу ${_dateCtrl.text} отправлен: $name')));
-    context.pop(); // открыто push-ем → закрывается pop-ом
+        content: Text('Запрос на встречу ${_dateCtrl.text} отправлен: '
+            '${profile.name}')));
+    context.pop(); // «Мои встречи» позади УЖЕ выросли — без лишних вызовов
   }
 
   @override
   Widget build(BuildContext context) {
-    final profile = profileById(widget.profileId);
+    final model = context.watch<ProfilesModel>();
+    final profile = model.byId(widget.profileId);
+    if (profile == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Предложить встречу')),
+        body: Center(
+          child: model.isLoading
+              ? const CircularProgressIndicator()
+              : const Text('Профиль не существует'),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Предложить встречу')),
       body: Form(
@@ -116,11 +152,9 @@ class _MeetingRequestScreenState extends State<MeetingRequestScreen> {
                 labelText: 'Формат',
                 border: OutlineInputBorder(),
               ),
-              items: const [
-                DropdownMenuItem(
-                    value: 'online', child: Text('Онлайн (Zoom / Meet)')),
-                DropdownMenuItem(value: 'office', child: Text('В офисе')),
-                DropdownMenuItem(value: 'coffee', child: Text('Бизнес-кофе')),
+              items: [
+                for (final f in Meeting.formats.entries)
+                  DropdownMenuItem(value: f.key, child: Text(f.value)),
               ],
               onChanged: (v) => setState(() => _format = v),
               validator: (v) => v == null ? 'Выберите формат' : null,
@@ -138,7 +172,9 @@ class _MeetingRequestScreenState extends State<MeetingRequestScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            FilledButton(onPressed: _send, child: const Text('Отправить запрос')),
+            FilledButton(
+                onPressed: _busy ? null : _send,
+                child: Text(_busy ? 'Отправляем…' : 'Отправить запрос')),
           ],
         ),
       ),

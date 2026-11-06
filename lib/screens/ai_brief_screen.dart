@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../data/profile.dart';
+import '../models/account_model.dart';
+import '../models/profiles_model.dart';
 import '../utils/validators.dart';
 
 /// «Запрос к ИИ»: кого именно вы ищете — форма с валидацией (L3).
@@ -31,10 +34,19 @@ class _AiBriefScreenState extends State<AiBriefScreen> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final city = _sameCity ? context.read<AccountModel>().me?.city : null;
+    final profiles = context.read<ProfilesModel>()
+      ..applyBrief(AiBrief(
+        _queryCtrl.text.trim(),
+        _goal!,
+        _industryCtrl.text.trim(),
+        int.parse(_experienceCtrl.text),
+        city,
+      ));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('ИИ обновил подбор: «${_goal!.label}», '
-            '${_industryCtrl.text.trim()}')));
-    context.pop();
+        content: Text('ИИ обновил подбор: «${_goal!.label}» — '
+            'кандидатов: ${profiles.matches.length}')));
+    context.pop(); // «ИИ-подбор» позади уже показывает новый рейтинг
   }
 
   @override
