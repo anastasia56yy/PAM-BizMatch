@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
+import '../models/chats_model.dart';
+import '../widgets/error_view.dart';
 import '../widgets/initials_avatar.dart';
 
 /// «Контакты»: взаимные знакомства и переписка с ними.
@@ -11,14 +13,26 @@ class ChatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Контакты')),
-      body: ListView.separated(
-        itemCount: mockConversations.length,
+    final model = context.watch<ChatsModel>();
+    final Widget body;
+    if (model.isLoading) {
+      body = const LoadingView();
+    } else if (model.error != null) {
+      body = ErrorView(
+          message: model.error!,
+          onRetry: () => context.read<ChatsModel>().load());
+    } else if (model.conversations.isEmpty) {
+      body = const Center(
+          child: Text('Контактов пока нет — начните в «Знакомствах»'));
+    } else {
+      final chats = model.conversations;
+      body = ListView.separated(
+        itemCount: chats.length,
         separatorBuilder: (_, _) => const Divider(height: 1, indent: 72),
         itemBuilder: (context, index) {
-          final c = mockConversations[index];
+          final c = chats[index];
           return ListTile(
+            key: ValueKey(c.id),
             leading: InitialsAvatar(name: c.name),
             title: Text(c.name),
             subtitle: Text(c.lastMessage,
@@ -39,7 +53,11 @@ class ChatsScreen extends StatelessWidget {
             onTap: () => context.push('/chats/${c.id}'),
           );
         },
-      ),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Контакты')),
+      body: body,
     );
   }
 }
