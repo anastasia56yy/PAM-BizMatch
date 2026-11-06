@@ -201,12 +201,3 @@ const myProfile = Profile(
   email: 'anastasia@eventflow.md',
   phone: '69123456',
 );
-
-// ── Временные леса: экраны L3 читают seed напрямую, пока не мигрированы на
-// модели (Задание 4). Удаляются вместе с последним мигрированным экраном.
-Profile profileById(int id) => mockProfiles.firstWhere((p) => p.id == id);
-
-Conversation conversationById(int id) =>
-    mockConversations.firstWhere((c) => c.id == id);
-
-const goalFilters = ['Все', 'Инвестиции', 'Сооснователь', 'Найм', 'Партнёрство', 'Менторство'];
