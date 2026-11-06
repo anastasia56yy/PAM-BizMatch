@@ -9,6 +9,7 @@ import 'screens/favorites_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/matches_screen.dart';
 import 'screens/meeting_request_screen.dart';
+import 'screens/meetings_screen.dart';
 import 'screens/my_profile_screen.dart';
 import 'screens/profile_detail_screen.dart';
 import 'widgets/app_shell.dart';
@@ -94,6 +95,10 @@ final router = GoRouter(
               GoRoute(
                 path: 'edit',
                 builder: (context, state) => const EditProfileScreen(),
+              ),
+              GoRoute(
+                path: 'meetings', // /profile/meetings
+                builder: (context, state) => const MeetingsScreen(),
               ),
             ],
           ),
