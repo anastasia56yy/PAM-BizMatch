@@ -7,14 +7,24 @@ import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:biz_match/data/api_client.dart';
 import 'package:biz_match/data/auth_api.dart';
-import 'package:biz_match/data/mock_repositories.dart';
 import 'package:biz_match/data/token_store.dart';
 import 'package:biz_match/main.dart';
 import 'package:biz_match/router.dart';
 
-/// Поддельный сервер: верный пароль — secret1, всё остальное — 401.
+const _emptyPage = {'items': [], 'page': 1, 'limit': 20, 'total': 0};
+
+/// Поддельный сервер: верный пароль — secret1, всё остальное — 401;
+/// списки пустые, /me — минимальный профиль.
 final _fakeServer = MockClient((request) async {
+  if (request.method == 'GET') {
+    return http.Response(
+        jsonEncode(request.url.path == '/me'
+            ? {'id': 1, 'name': 'Ana', 'email': 'ana@utm.md'}
+            : _emptyPage),
+        200);
+  }
   final body = jsonDecode(request.body) as Map<String, dynamic>;
   if (body['password'] == 'secret1') {
     return http.Response(
@@ -41,7 +51,7 @@ void main() {
       providers: [
         Provider<AuthApi>(
             create: (_) => AuthApi('http://test', tokens, client: _fakeServer)),
-        ...appProviders(MockNetwork(latency: Duration.zero)),
+        ...appProviders(ApiClient('http://test', tokens, client: _fakeServer)),
       ],
       child: const BizMatchApp(),
     ));

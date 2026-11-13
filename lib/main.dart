@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
+import 'data/api_client.dart';
 import 'data/auth_api.dart';
-import 'data/mock_repositories.dart';
+import 'data/http_repositories.dart';
 import 'data/token_store.dart';
 import 'models/account_model.dart';
 import 'models/chats_model.dart';
@@ -22,29 +23,28 @@ Future<void> main() async {
   final tokens = TokenStore();
   final loggedIn = await tokens.read() != null; // запуск решает по token-у
   router = createRouter(initialLocation: loggedIn ? '/discover' : '/login');
-  final network = MockNetwork(); // на L5: http-реализации — и всё
+  final api = ApiClient(apiBase, tokens,
+      onUnauthorized: () => router.go('/login')); // 401 → login, в одном месте
   runApp(MultiProvider(
     providers: [
       Provider<AuthApi>(create: (_) => AuthApi(apiBase, tokens)),
-      ...appProviders(network),
+      ...appProviders(api),
     ],
     child: const BizMatchApp(), // MaterialApp.router — нетронут с L3
   ));
 }
 
-/// Модели получают хранилища через конструктор (DI) и сразу грузятся.
-List<SingleChildWidget> appProviders(MockNetwork network) => [
-      // леса демонстрации аварии (переключатель в профиле) — исчезают на L5
-      Provider<MockNetwork>.value(value: network),
+/// Модели получают хранилища через конструктор (DI) — как на L4;
+/// поменялся только класс хранилища: Mock… → Http….
+List<SingleChildWidget> appProviders(ApiClient api) => [
       ChangeNotifierProvider(
-          create: (_) => ProfilesModel(MockProfileRepository(network))..load()),
+          create: (_) => ProfilesModel(HttpProfileRepository(api))..load()),
       ChangeNotifierProvider(
-          create: (_) =>
-              ChatsModel(MockConversationRepository(network))..load()),
+          create: (_) => ChatsModel(HttpConversationRepository(api))..load()),
       ChangeNotifierProvider(
-          create: (_) => MeetingsModel(MockMeetingRepository(network))..load()),
+          create: (_) => MeetingsModel(HttpMeetingRepository(api))..load()),
       ChangeNotifierProvider(
-          create: (_) => AccountModel(MockAccountRepository(network))..load()),
+          create: (_) => AccountModel(HttpAccountRepository(api))..load()),
       ChangeNotifierProvider(create: (_) => ShortlistModel()),
     ];
 

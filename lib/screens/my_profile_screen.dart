@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/auth_api.dart';
-import '../data/mock_repositories.dart';
 import '../models/account_model.dart';
 import '../models/chats_model.dart';
 import '../models/meetings_model.dart';
@@ -22,7 +21,6 @@ class MyProfileScreen extends StatefulWidget {
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
   bool _visibleInAi = true; // эфемерное: переключатель экрана → setState
-  bool _simulateError = false; // эфемерное — тоже setState (C7)
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +32,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     if (account.isLoading) {
       body = const LoadingView();
     } else if (account.error != null || p == null) {
-      body = Column(
-        children: [
-          Expanded(
-            child: ErrorView(
-                message: account.error ?? 'Профиль не загружен',
-                onRetry: () => context.read<AccountModel>().load()),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: _crashSwitch(scheme), // чтобы аварию можно было выключить
-          ),
-        ],
-      );
+      body = ErrorView(
+          message: account.error ?? 'Профиль не загружен',
+          onRetry: () => context.read<AccountModel>().load());
     } else {
       // статистика — живая: каждое число читает свою модель
       final chats = context.watch<ChatsModel>();
@@ -137,7 +125,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             onChanged: (v) => setState(() => _visibleInAi = v),
             title: const Text('Показывать меня в ИИ-подборе'),
           ),
-          _crashSwitch(scheme),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => _logout(context),
@@ -162,21 +149,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       body: body,
     );
   }
-
-  // Леса демонстрации аварии: единственное место UI, которое знает о mock-е.
-  // Умирает на L5 вместе с ним.
-  Widget _crashSwitch(ColorScheme scheme) => SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        value: _simulateError,
-        onChanged: (v) {
-          setState(() => _simulateError = v);
-          context.read<MockNetwork>().simulateError = v;
-        },
-        title: const Text('Симулировать сбой сети'),
-        subtitle: const Text('Все запросы к хранилищу будут падать'),
-        secondary:
-            Icon(Icons.wifi_off, color: _simulateError ? scheme.error : null),
-      );
 }
 
 /// Блокирующее решение → AlertDialog с результатом.

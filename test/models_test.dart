@@ -1,19 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:biz_match/data/meeting.dart';
-import 'package:biz_match/data/mock_repositories.dart';
 import 'package:biz_match/data/profile.dart';
 import 'package:biz_match/models/chats_model.dart';
 import 'package:biz_match/models/meetings_model.dart';
 import 'package:biz_match/models/profiles_model.dart';
 import 'package:biz_match/models/shortlist_model.dart';
 
+import 'fakes.dart';
+
 void main() {
-  late MockNetwork network;
-  setUp(() => network = MockNetwork(latency: Duration.zero));
+  late FakeNetwork network;
+  setUp(() => network = FakeNetwork());
 
   test('load: «грузится» → данные, извещение на входе и на выходе', () async {
-    final model = ProfilesModel(MockProfileRepository(network));
+    final model = ProfilesModel(FakeProfileRepository(network));
     var notified = 0;
     model.addListener(() => notified++);
 
@@ -31,10 +32,10 @@ void main() {
   });
 
   test('авария: ошибка вместо данных, retry после выключения', () async {
-    final model = ProfilesModel(MockProfileRepository(network));
+    final model = ProfilesModel(FakeProfileRepository(network));
     network.simulateError = true;
     await model.load();
-    expect(model.error, MockNetwork.errNetwork);
+    expect(model.error, FakeNetwork.errNetwork);
 
     network.simulateError = false;
     await model.load();
@@ -43,13 +44,13 @@ void main() {
   });
 
   test('коллекции наружу — только для чтения', () async {
-    final model = ProfilesModel(MockProfileRepository(network));
+    final model = ProfilesModel(FakeProfileRepository(network));
     await model.load();
     expect(() => model.profiles.removeLast(), throwsUnsupportedError);
   });
 
   test('remove: профиль исчезает, подписчики извещены', () async {
-    final model = ProfilesModel(MockProfileRepository(network));
+    final model = ProfilesModel(FakeProfileRepository(network));
     await model.load();
     final id = model.profiles.first.id;
     var notified = false;
@@ -61,7 +62,7 @@ void main() {
   });
 
   test('add встречи: id даёт хранилище, список растёт', () async {
-    final model = MeetingsModel(MockMeetingRepository(network));
+    final model = MeetingsModel(FakeMeetingRepository(network));
     await model.load();
     final before = model.meetings.length;
 
@@ -74,7 +75,7 @@ void main() {
   });
 
   test('add при аварии: сообщение, состояние нетронуто', () async {
-    final model = MeetingsModel(MockMeetingRepository(network));
+    final model = MeetingsModel(FakeMeetingRepository(network));
     await model.load();
     final before = model.meetings.length;
     network.simulateError = true;
@@ -82,7 +83,7 @@ void main() {
     final error = await model.add(Meeting(
         0, 1, 'Ирина Чобану', 'Тест', DateTime(2027, 1, 10), 30, 'online', ''));
 
-    expect(error, MockNetwork.errNetwork);
+    expect(error, FakeNetwork.errNetwork);
     expect(model.meetings.length, before);
   });
 
@@ -95,7 +96,7 @@ void main() {
   });
 
   test('startChat сразу после создания модели не плодит дубль', () async {
-    final chats = ChatsModel(MockConversationRepository(network));
+    final chats = ChatsModel(FakeConversationRepository(network));
     chats.load(); // как ..load() в корне: загрузка ещё идёт
     const irina = Profile(1, 'Ирина Чобану', '', 'Moldova Growth Fund', '',
         'Кишинёв', Goal.investor, 14, [], '', 96, '');
