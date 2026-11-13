@@ -16,8 +16,17 @@ class HttpProfileRepository implements ProfileRepository {
   final ApiClient _api;
 
   @override
-  Future<Result<List<Profile>>> fetchAll() => _api.send('GET', '/profiles',
-      okStatus: 200, parse: (j) => itemsOf(j, Profile.fromJson));
+  Future<Result<List<Profile>>> fetchAll(
+      {int page = 1, int limit = 20, String? search}) {
+    // адрес получает query params; поиск идёт НА СЕРВЕРЕ
+    final query = Uri(queryParameters: {
+      'page': '$page',
+      'limit': '$limit',
+      if (search != null && search.isNotEmpty) 'search': search,
+    }).query;
+    return _api.send('GET', '/profiles?$query',
+        okStatus: 200, parse: (j) => itemsOf(j, Profile.fromJson));
+  }
 
   @override
   Future<Result<Profile>> fetchById(int id) => _api.send('GET', '/profiles/$id',

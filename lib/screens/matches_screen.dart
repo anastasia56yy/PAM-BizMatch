@@ -17,16 +17,26 @@ class MatchesScreen extends StatefulWidget {
 }
 
 class _MatchesScreenState extends State<MatchesScreen> {
-  // эфемерное: текст поиска и выбранный чип нужны только этому экрану
-  String _query = '';
+  // эфемерное: текст в поле поиска и выбранный чип нужны только этому экрану
+  late final TextEditingController _searchCtrl;
   Goal? _goal;
 
-  bool _matchesQuery(Profile p) {
-    final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return true;
-    return [p.name, p.company, p.title, ...p.skills]
-        .any((s) => s.toLowerCase().contains(q));
+  @override
+  void initState() {
+    super.initState();
+    // read — в initState, не в build (C7): поле помнит текущий поиск модели
+    _searchCtrl =
+        TextEditingController(text: context.read<ProfilesModel>().search);
   }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  /// Поиск идёт НА СЕРВЕРЕ: телефон получает только свой ломоть.
+  void _search(String q) => context.read<ProfilesModel>().load(search: q.trim());
 
   @override
   Widget build(BuildContext context) {
@@ -37,61 +47,75 @@ class _MatchesScreenState extends State<MatchesScreen> {
     } else if (model.error != null) {
       body = ErrorView(
           message: model.error!,
-          onRetry: () => context.read<ProfilesModel>().load());
+          onRetry: () => context.read<ProfilesModel>().load()); // поиск сохранён
     } else {
       final list = model.matches
           .where((p) => _goal == null || p.goal == _goal)
-          .where(_matchesQuery)
           .toList();
-      body = ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _BriefCard(brief: model.brief),
-          const SizedBox(height: 12),
-          SearchBar(
-            hintText: 'Имя, компания или навык',
-            leading: const Icon(Icons.search),
-            onChanged: (v) => setState(() => _query = v),
-          ),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final g in <Goal?>[null, ...Goal.values])
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text(g?.label ?? 'Все'),
-                      selected: _goal == g,
-                      onSelected: (_) => setState(() => _goal = g),
-                    ),
+      final header = <Widget>[
+        _BriefCard(brief: model.brief),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final g in <Goal?>[null, ...Goal.values])
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(g?.label ?? 'Все'),
+                    selected: _goal == g,
+                    onSelected: (_) => setState(() => _goal = g),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-          const SizedBox(height: 12),
-          Text('Лучшие кандидаты · ${list.length}',
-              style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 8),
-          if (list.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('Под этот запрос пока никого нет — '
-                  'смягчите фильтры или сбросьте запрос к ИИ.',
-                  textAlign: TextAlign.center),
+        ),
+        const SizedBox(height: 12),
+        Text(
+            model.search.isEmpty
+                ? 'Лучшие кандидаты · ${list.length}'
+                : 'Найдено по «${model.search}» · ${list.length}',
+            style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        if (list.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Text('Под этот запрос пока никого нет — '
+                'смягчите фильтры или сбросьте запрос к ИИ.',
+                textAlign: TextAlign.center),
+          ),
+      ];
+      body = ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        // заголовок + карточки + хвост, который просит следующую страницу
+        itemCount: header.length + list.length + (model.hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index < header.length) return header[index];
+          final i = index - header.length;
+          if (i == list.length) {
+            context.read<ProfilesModel>().loadMore(); // хвост виден → ещё
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(
+                  child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2))),
+            );
+          }
+          final p = list[i];
+          return Padding(
+            key: ValueKey(p.id),
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ProfileCard(
+              profile: p,
+              showReason: true,
+              // зайду и вернусь → push; в адресе путешествует только id
+              onTap: () => context.push('/matches/${p.id}'),
             ),
-          for (final p in list)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ProfileCard(
-                profile: p,
-                showReason: true,
-                // зайду и вернусь → push; в адресе путешествует только id
-                onTap: () => context.push('/matches/${p.id}'),
-              ),
-            ),
-        ],
+          );
+        },
       );
     }
     return Scaffold(
@@ -106,7 +130,33 @@ class _MatchesScreenState extends State<MatchesScreen> {
           const ShortlistButton(basePath: '/matches'),
         ],
       ),
-      body: body,
+      body: Column(
+        children: [
+          // поле поиска вне триады: при загрузке оно не исчезает
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: SearchBar(
+              controller: _searchCtrl,
+              hintText: 'Имя, компания или навык',
+              leading: const Icon(Icons.search),
+              textInputAction: TextInputAction.search,
+              onSubmitted: _search,
+              trailing: [
+                if (model.search.isNotEmpty)
+                  IconButton(
+                    tooltip: 'Сбросить поиск',
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      _searchCtrl.clear();
+                      _search('');
+                    },
+                  ),
+              ],
+            ),
+          ),
+          Expanded(child: body),
+        ],
+      ),
     );
   }
 }

@@ -48,10 +48,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       body = PageView.builder(
         controller: _pages,
         itemCount: profiles.length,
-        itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.fromLTRB(6, 8, 6, 24),
-          child: _SwipeCard(profile: profiles[index], onSkip: _next),
-        ),
+        itemBuilder: (context, index) {
+          // последняя карточка на экране → попросить следующий ломоть
+          if (index == profiles.length - 1) {
+            context.read<ProfilesModel>().loadMore();
+          }
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(6, 8, 6, 24),
+            child: _SwipeCard(profile: profiles[index], onSkip: _next),
+          );
+        },
       );
     }
     return Scaffold(

@@ -93,4 +93,15 @@ void main() {
         .fetchAll();
     expect((r as Err).msg, 'Ответ не тот, что обещан');
   });
+
+  test('пагинация и поиск уходят в query params', () async {
+    Uri? url;
+    await repo((req) async {
+      url = req.url;
+      return _json({'items': [], 'page': 2, 'limit': 20, 'total': 0}, 200);
+    }).fetchAll(page: 2, search: 'Телеком');
+    expect(url!.path, '/profiles');
+    expect(url!.queryParameters,
+        {'page': '2', 'limit': '20', 'search': 'Телеком'});
+  });
 }

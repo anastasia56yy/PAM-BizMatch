@@ -67,7 +67,9 @@ class FakeProfileRepository implements ProfileRepository {
   final _Table<Profile> _t;
 
   @override
-  Future<Result<List<Profile>>> fetchAll() => _t.all();
+  Future<Result<List<Profile>>> fetchAll(
+          {int page = 1, int limit = 20, String? search}) =>
+      _t.all();
   @override
   Future<Result<Profile>> fetchById(int id) => _t.one(id);
   @override
