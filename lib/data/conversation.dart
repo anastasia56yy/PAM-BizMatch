@@ -13,6 +13,30 @@ class Conversation {
   const Conversation(this.id, this.profileId, this.name, this.company,
       this.lastMessage, this.time, this.unread, this.messages);
 
+  factory Conversation.fromJson(Map<String, dynamic> j) => Conversation(
+        j['id'] as int,
+        j['profile_id'] as int,
+        j['name'] as String,
+        j['company'] as String? ?? '',
+        j['last_message'] as String? ?? '',
+        j['time'] as String? ?? '',
+        j['unread'] as int? ?? 0,
+        [
+          for (final m in j['messages'] as List? ?? const [])
+            Message.fromJson(m as Map<String, dynamic>)
+        ],
+      );
+
+  Map<String, dynamic> toJson() => {
+        'profile_id': profileId,
+        'name': name,
+        'company': company,
+        'last_message': lastMessage,
+        'time': time,
+        'unread': unread,
+        'messages': [for (final m in messages) m.toJson()],
+      };
+
   Conversation copyWith(
           {int? id,
           String? lastMessage,
@@ -37,4 +61,9 @@ class Message {
   final String time;
 
   const Message(this.fromMe, this.text, this.time);
+
+  factory Message.fromJson(Map<String, dynamic> j) =>
+      Message(j['from_me'] as bool, j['text'] as String, j['time'] as String);
+
+  Map<String, dynamic> toJson() => {'from_me': fromMe, 'text': text, 'time': time};
 }

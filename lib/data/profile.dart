@@ -54,6 +54,45 @@ class Profile {
     this.linkedIn = '',
   });
 
+  // ── Граница JSON (L5): язык сервера ↔ доменная модель ────────────────
+
+  /// Кандидат с сервера (/profiles) или собственный профиль (/me).
+  factory Profile.fromJson(Map<String, dynamic> j) => Profile(
+        j['id'] as int,
+        j['name'] as String,
+        j['title'] as String? ?? '',
+        j['company'] as String? ?? '',
+        j['industry'] as String? ?? '',
+        j['city'] as String? ?? '',
+        Goal.values.asNameMap()[j['goal']] ?? Goal.partnership,
+        j['experience_years'] as int? ?? 0,
+        [for (final s in j['skills'] as List? ?? const []) s as String],
+        j['about'] as String? ?? '',
+        j['ai_score'] as int? ?? 0,
+        j['ai_reason'] as String? ?? '',
+        email: j['email'] as String? ?? '',
+        phone: j['phone'] as String? ?? '',
+        linkedIn: j['linkedin'] as String? ?? '',
+      );
+
+  /// Без id — идентичность даёт сервер (C8).
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'title': title,
+        'company': company,
+        'industry': industry,
+        'city': city,
+        'goal': goal.name,
+        'experience_years': experienceYears,
+        'skills': skills,
+        'about': about,
+        'ai_score': aiScore,
+        'ai_reason': aiReason,
+        'email': email,
+        'phone': phone,
+        'linkedin': linkedIn,
+      };
+
   /// «Тот же профиль, другие поля»: create даёт id, форма меняет данные.
   Profile copyWith({
     int? id,
