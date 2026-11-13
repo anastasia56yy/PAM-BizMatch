@@ -15,6 +15,7 @@ analyzer:
     - android/**
     - web/**
     - windows/**
+    - server/**  # отдельный Dart-пакет со своим анализом
 
 linter:
   # The lint rules applied to this project can be customized in the

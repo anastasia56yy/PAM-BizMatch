@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../data/auth_api.dart';
 import '../data/mock_repositories.dart';
 import '../models/account_model.dart';
 import '../models/chats_model.dart';
@@ -196,6 +197,8 @@ Future<void> _logout(BuildContext context) async {
     ),
   );
   if (ok == true && context.mounted) {
+    await context.read<AuthApi>().logout(); // token стирается из prefs
+    if (!context.mounted) return;
     context.go('/login'); // go: раздел с вкладками уходит из стека
   }
 }

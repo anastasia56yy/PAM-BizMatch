@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
+import 'data/auth_api.dart';
 import 'data/mock_repositories.dart';
+import 'data/token_store.dart';
 import 'models/account_model.dart';
 import 'models/chats_model.dart';
 import 'models/meetings_model.dart';
@@ -10,11 +12,22 @@ import 'models/profiles_model.dart';
 import 'models/shortlist_model.dart';
 import 'router.dart';
 
+/// Адрес backend-а: эмулятор Android видит ноутбук как 10.0.2.2;
+/// на десктопе — localhost, на телефоне — IP ноутбука в локальной сети.
+const apiBase = 'http://10.0.2.2:8080';
+
 /// Корень композиции: ЗДЕСЬ (и только здесь) выбирается источник данных.
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // prefs до runApp (C9)
+  final tokens = TokenStore();
+  final loggedIn = await tokens.read() != null; // запуск решает по token-у
+  router = createRouter(initialLocation: loggedIn ? '/discover' : '/login');
   final network = MockNetwork(); // на L5: http-реализации — и всё
   runApp(MultiProvider(
-    providers: appProviders(network),
+    providers: [
+      Provider<AuthApi>(create: (_) => AuthApi(apiBase, tokens)),
+      ...appProviders(network),
+    ],
     child: const BizMatchApp(), // MaterialApp.router — нетронут с L3
   ));
 }
