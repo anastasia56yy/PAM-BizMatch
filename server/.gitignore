@@ -1,0 +1,4 @@
+.dart_tool/
+*.db
+*.db-journal
+conformance/.dart_tool/

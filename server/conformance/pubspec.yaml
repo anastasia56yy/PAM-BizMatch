@@ -1,0 +1,10 @@
+name: bizmatch_conformance
+description: Тесты соответствия API-контракту (auth, CRUD, пагинация, поиск, upload, ошибки).
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  http: ^1.2.0
