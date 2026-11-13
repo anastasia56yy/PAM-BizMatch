@@ -38,6 +38,20 @@ dart run bin/conformance.dart --base-url http://localhost:8080
 | `POST /files` (multipart, поле `file`, ≤ 5 МБ) | 201 `{id,filename,mime_type,size,url}` |
 | `GET /files/{id}` | байты, `Content-Disposition: attachment` + CSP |
 
+### Сущности темы BizMatch
+
+Тот же CRUD-модуль, что `notes` (пагинация, `search=`, 400/404, чужое = 404):
+
+| Маршрут | Сущность | Поиск по |
+|---|---|---|
+| `GET/POST /profiles`, `GET/PUT/DELETE /profiles/{id}` | кандидаты ИИ-подбора, сортировка по `ai_score` | имя, должность, компания, отрасль, навыки |
+| `GET/POST /conversations`, `GET/PUT/DELETE /conversations/{id}` | контакты с перепиской (`messages` — JSON) | имя, компания, последнее сообщение |
+| `GET/POST /meetings`, `GET/PUT/DELETE /meetings/{id}` | запросы на встречу | тема, имя |
+| `GET /me`, `PUT /me` | собственный профиль | — |
+
+При регистрации пользователь получает стартовый подбор: 24 кандидата
+(больше одной страницы), 2 контакта и 1 встречу (`lib/seed.dart`).
+
 Все маршруты, кроме `/health`, `/auth/*` и `GET /files/{id}`, требуют
 `Authorization: Bearer <token>`. Любая ошибка:
 `{"error":{"code":"...","message":"..."}}`.

@@ -3,6 +3,8 @@ import 'dart:ffi';
 import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import 'theme.dart';
+
 /// Открывает SQLite-базу и применяет схему. На Windows используется
 /// системная библиотека winsqlite3.dll — ноль настройки.
 Database openDatabase(String path) {
@@ -10,7 +12,7 @@ Database openDatabase(String path) {
       OperatingSystem.windows, () => DynamicLibrary.open('winsqlite3.dll'));
   final db = sqlite3.open(path);
   db.execute('PRAGMA foreign_keys = ON;');
-  for (final statement in schema) {
+  for (final statement in [...schema, ...themeSchema]) {
     db.execute(statement);
   }
   return db;

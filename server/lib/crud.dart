@@ -124,12 +124,11 @@ class CrudModule {
   String? validate(Map<String, dynamic> body) {
     for (final f in fields) {
       final v = body[f.name];
-      if (v == null) {
-        if (f.required) return '${f.name} is required';
-        continue;
-      }
+      final blank = v == null || (v is String && v.trim().isEmpty);
+      if (blank && f.required) return '${f.name} is required';
+      if (v == null) continue;
       final ok = switch (f.type) {
-        FieldType.text => v is String && (!f.required || v.trim().isNotEmpty),
+        FieldType.text => v is String,
         FieldType.integer => v is int,
         FieldType.real => v is num,
         FieldType.json => v is List || v is Map,

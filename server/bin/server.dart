@@ -5,6 +5,8 @@ import 'package:bizmatch_server/auth.dart';
 import 'package:bizmatch_server/crud.dart';
 import 'package:bizmatch_server/db.dart';
 import 'package:bizmatch_server/files.dart';
+import 'package:bizmatch_server/seed.dart';
+import 'package:bizmatch_server/theme.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
@@ -15,7 +17,7 @@ Future<void> main() async {
   final secret = Platform.environment['JWT_SECRET'] ?? 'dev-secret-change-me';
   final db = openDatabase(Platform.environment['DB_PATH'] ?? 'app.db');
 
-  final auth = Auth(db, secret);
+  final auth = Auth(db, secret, onUserCreated: seedNewUser);
   final files = FilesModule(db);
 
   // защищённые маршрутизаторы: пропускает только валидный Bearer
@@ -26,6 +28,11 @@ Future<void> main() async {
     ..get('/health', (Request _) => jsonOk({'status': 'ok'}))
     ..mount('/auth/', auth.router.call)
     ..mount('/notes', protected(notesModule(db).router))
+    // сущности темы — рядом с notes, под тем же auth-middleware
+    ..mount('/profiles', protected(profilesModule(db).router))
+    ..mount('/conversations', protected(conversationsModule(db).router))
+    ..mount('/meetings', protected(meetingsModule(db).router))
+    ..mount('/me', protected(MeModule(db).router))
     ..mount('/files', _filesHandler(protected(files.uploadRouter), files));
 
   final handler = const Pipeline()
