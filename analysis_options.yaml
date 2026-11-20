@@ -15,8 +15,8 @@ analyzer:
     - android/**
     - web/**
     - windows/**
-    - server/**
-    - lab1/**  # отдельный Dart-пакет со своим анализом
+    - server/**  # отдельный Dart-пакет со своим анализом
+    - lab1/**  # ЛР1 — отдельные проекты со своими pubspec
 
 linter:
   # The lint rules applied to this project can be customized in the
