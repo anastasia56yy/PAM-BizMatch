@@ -3,8 +3,8 @@
 Дисциплина PAM (Программирование мобильных приложений), UTM FCIM.
 Автор: Трачук Анастасия, TI-236.
 
-Продолжение — проект BizMatch (L2–L5): [PAM-BizMatch](https://github.com/anastasia56yy/PAM-BizMatch).
-PDF-отчёт — в [релизе L1](../../releases/tag/L1).
+Продолжение — проект BizMatch (L2–L5) в корне этого же репозитория.
+PDF-отчёт — в [релизе L1](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L1).
 
 ## Содержимое
 

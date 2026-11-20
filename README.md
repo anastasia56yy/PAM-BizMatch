@@ -4,13 +4,13 @@ Flutter-проект дисциплины **PAM** (Программирован�
 Автор: Трачук Анастасия, TI-236.
 
 Смесь LinkedIn (деловой профиль) и Tinder (свайп-карточки) плюс ИИ-оценка совместимости 0–100 %.
-Один проект растёт от лабораторной к лабораторной; конец каждой отмечен git-тегом и GitHub Release с PDF-отчётом.
+Все лабораторные — в этом репозитории: L1 — в папке `lab1/`, L2–L5 — один проект, который растёт от лабораторной к лабораторной; конец каждой отмечен git-тегом и GitHub Release с PDF-отчётом.
 
 ## Лабораторные
 
 | ЛР | Тема | Код на конец ЛР | Релиз и отчёт |
 |---|---|---|---|
-| L1 | Среда разработки, основы Dart, выбор темы | отдельный репозиторий [PAM-L1](https://github.com/anastasia56yy/PAM-L1) | [L1](https://github.com/anastasia56yy/PAM-L1/releases/tag/L1) |
+| L1 | Среда разработки, основы Dart, выбор темы | папка [lab1/](lab1) · [tree/L1](https://github.com/anastasia56yy/PAM-BizMatch/tree/L1) | [L1](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L1) |
 | L2 | Статический UI: виджеты, layout, тема Material 3 | [tree/L2](https://github.com/anastasia56yy/PAM-BizMatch/tree/L2) | [L2](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L2) |
 | L3 | Навигация go_router, формы, валидация | [tree/L3](https://github.com/anastasia56yy/PAM-BizMatch/tree/L3) · [изменения L2→L3](https://github.com/anastasia56yy/PAM-BizMatch/compare/L2...L3) | [L3](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L3) |
 | L4 | State (provider) + Repository, mock-хранилища | [tree/L4](https://github.com/anastasia56yy/PAM-BizMatch/tree/L4) · [изменения L3→L4](https://github.com/anastasia56yy/PAM-BizMatch/compare/L3...L4) | [L4](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L4) |
