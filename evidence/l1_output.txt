@@ -1,0 +1,26 @@
+--- E1
+42
+0
+7
+-1
+--- E2
+7.75
+9.666666666666666
+0.0
+--- E3
+12.50 MDL
+12.50 MDL
+100.00 EUR
+7.5 USD
+--- E4
+Student(Ana Rusu, TI-231)
+Student(Guest, —)
+true
+1
+--- E5
+[CartService] товар добавлен: Paracetamol
+[AuthService] пользователь вошёл: ana.rusu
+--- E6
+Загружается профиль пользователя ana.rusu...
+Профиль: ana.rusu, группа TI-231, решено упражнений: 42
+Готово.
