@@ -1,55 +1,102 @@
 # BizMatch — деловые знакомства с ИИ-подбором
 
-Flutter-проект дисциплины PAM: L2 (статический UI) → L3 (навигация, формы, валидация).
+Flutter-проект дисциплины **PAM** (Программирование мобильных приложений), UTM FCIM.
+Автор: Трачук Анастасия, TI-236.
+
 Смесь LinkedIn (деловой профиль) и Tinder (свайп-карточки) плюс ИИ-оценка совместимости 0–100 %.
+Один проект растёт от лабораторной к лабораторной; конец каждой отмечен git-тегом и GitHub Release с PDF-отчётом.
+
+## Лабораторные
+
+| ЛР | Тема | Код на конец ЛР | Релиз и отчёт |
+|---|---|---|---|
+| L1 | Среда разработки, основы Dart, выбор темы | отдельный репозиторий [PAM-L1](https://github.com/anastasia56yy/PAM-L1) | [L1](https://github.com/anastasia56yy/PAM-L1/releases/tag/L1) |
+| L2 | Статический UI: виджеты, layout, тема Material 3 | [tree/L2](../../tree/L2) | [L2](../../releases/tag/L2) |
+| L3 | Навигация go_router, формы, валидация | [tree/L3](../../tree/L3) · [изменения L2→L3](../../compare/L2...L3) | [L3](../../releases/tag/L3) |
+| L4 | State (provider) + Repository, mock-хранилища | [tree/L4](../../tree/L4) · [изменения L3→L4](../../compare/L3...L4) | [L4](../../releases/tag/L4) |
+| L5 | Собственный backend (Dart + SQLite), JWT, HTTP-хранилища | [tree/L5](../../tree/L5) · [изменения L4→L5](../../compare/L4...L5) | [L5](../../releases/tag/L5) |
 
 ## Запуск
+
+Сервер (с L5):
+```
+cd server
+dart pub get
+dart run bin/server.dart          # http://localhost:8080, база app.db создаётся сама
+```
+Тесты соответствия сервера:
+```
+cd server/conformance
+dart run bin/conformance.dart --base-url http://localhost:8080   # PASS — 42/42
+```
+Приложение:
 ```
 flutter pub get
-flutter run            # эмулятор Android / телефон
-flutter run -d chrome  # быстрый просмотр в браузере
+flutter run      # эмулятор Android видит сервер как http://10.0.2.2:8080
 flutter test
 ```
 
-## Структура lib/
+## Архитектура (L5)
+
+```
+экраны → модели (ChangeNotifier) → интерфейсы *Repository → Http*Repository → ApiClient → server/
+                                                                    │
+                     token в shared_preferences ── Bearer на каждый запрос; 401 → token стёрт → /login
+```
+
 ```
 lib/
-├── main.dart            # MaterialApp.router + тема (seed 0xFF0F6E8C)
-├── router.dart          # карта маршрутов go_router
-├── data/mock_data.dart  # Profile, Goal, Conversation, Message + mock-данные
-├── utils/validators.dart# валидаторы форм
-├── screens/             # 10 экранов
-└── widgets/             # ProfileCard, MatchScoreBadge, InitialsAvatar, SkillChips, InfoRow, AppShell
+├── main.dart              # корень композиции: async main, выбор источника данных, providers
+├── router.dart            # go_router: маршруты, стартовый адрес по token-у
+├── data/                  # сущности (fromJson/toJson), интерфейсы хранилищ, Http-реализации,
+│                          # ApiClient (три слоя отказа), AuthApi, TokenStore, перевод ошибок
+├── models/                # ProfilesModel, ChatsModel, MeetingsModel, AccountModel, ShortlistModel
+├── screens/               # 12 экранов
+├── widgets/               # ProfileCard, MatchScoreBadge, ErrorView, ShortlistButton, …
+└── utils/validators.dart  # валидаторы форм
+server/
+├── bin/server.dart        # маршруты, CORS, конверт ошибок
+├── lib/                   # auth (JWT, PBKDF2), crud (общий CRUD-модуль), files, theme (сущности темы)
+└── conformance/           # набор тестов соответствия
 ```
 
-## Маршруты
+## Маршруты приложения
+
 | Адрес | Экран | Переход |
 |---|---|---|
-| `/login` | Вход (вне shell-а) | после входа `go('/discover')` |
+| `/login` | Вход / регистрация (вне shell-а) | после входа `go('/discover')` |
 | `/discover` | Знакомства (вкладка 1) | |
 | `/discover/:id`, `/discover/:id/meet` | Детали, встреча | `push` |
-| `/matches` | ИИ-подбор (вкладка 2) | |
-| `/matches/brief` | Запрос к ИИ (стоит перед `:id`) | `push` |
+| `/matches` | ИИ-подбор (вкладка 2), поиск и подгрузка страниц | |
+| `/matches/brief` | Запрос к ИИ | `push` |
 | `/matches/:id`, `/matches/:id/meet` | Детали, встреча | `push` |
-| `/chats`, `/chats/:id` | Контакты (вкладка 3), переписка | `push`; из деталей — `go` |
+| `/chats`, `/chats/:id` | Контакты (вкладка 3), переписка | `push` |
 | `/profile`, `/profile/edit` | Мой профиль (вкладка 4), редактирование | `push`; выход — `go('/login')` |
 
-## Правила валидации
-| Форма | Поле | Правило | Клавиатура / фильтр |
-|---|---|---|---|
-| Вход | E-mail | непустой, формат `x@y.z` | emailAddress |
-| Вход | Пароль | ≥ 6 символов | obscureText |
-| Встреча | Тема | ≥ 5 символов | — |
-| Встреча | Дата | строго в будущем | DatePicker |
-| Встреча | Длительность | 15–180 мин | number, digitsOnly |
-| Встреча | Формат | обязателен | Dropdown |
-| Запрос к ИИ | Кого ищете | ≥ 20 символов | — |
-| Запрос к ИИ | Цель, отрасль | обязательны | Dropdown / текст |
-| Запрос к ИИ | Мин. опыт | 0–40 лет | number, digitsOnly |
-| Профиль | E-mail | формат | emailAddress |
-| Профиль | Телефон | 8 цифр, начинается с 6/7 (+373) | phone, digitsOnly, длина 8 |
-| Профиль | LinkedIn | пусто или `https://linkedin.com/in/…` | url |
-| Профиль | Опыт | 0–60 лет | number, digitsOnly |
-| Профиль | О себе | ≥ 30 символов, ≤ 300 | — |
+## API сервера
 
-Feedback: SnackBar на свайп-действиях, избранном, сохранении форм; диалог подтверждения на «Выйти из аккаунта» и «Удалить контакт».
+| Маршрут | Назначение |
+|---|---|
+| `GET /health` | проверка, что сервер жив |
+| `POST /auth/register`, `POST /auth/login` | регистрация и вход → JWT |
+| `/notes`, `/profiles`, `/conversations`, `/meetings` | CRUD «на пользователя»: `GET` (`?page=&limit=&search=`), `POST`, `GET/PUT/DELETE /{id}` |
+| `GET/PUT /me` | собственный профиль |
+| `POST /files`, `GET /files/{id}` | загрузка multipart до 5 МБ и скачивание |
+
+Ошибки всегда приходят в конверте `{"error": {"code": "...", "message": "..."}}`.
+
+## Правила валидации форм
+
+| Форма | Поле | Правило |
+|---|---|---|
+| Вход | E-mail | непустой, формат `x@y.z` |
+| Вход | Пароль | ≥ 6 символов |
+| Регистрация | Имя | обязательно |
+| Встреча | Тема | ≥ 5 символов |
+| Встреча | Дата | строго в будущем |
+| Встреча | Длительность | 15–180 мин |
+| Запрос к ИИ | Кого ищете | ≥ 20 символов |
+| Запрос к ИИ | Мин. опыт | 0–40 лет |
+| Профиль | Телефон | 8 цифр, начинается с 6/7 (+373) |
+| Профиль | LinkedIn | пусто или `https://linkedin.com/in/…` |
+| Профиль | О себе | 30–300 символов |
