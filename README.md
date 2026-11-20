@@ -11,10 +11,10 @@ Flutter-проект дисциплины **PAM** (Программирован�
 | ЛР | Тема | Код на конец ЛР | Релиз и отчёт |
 |---|---|---|---|
 | L1 | Среда разработки, основы Dart, выбор темы | отдельный репозиторий [PAM-L1](https://github.com/anastasia56yy/PAM-L1) | [L1](https://github.com/anastasia56yy/PAM-L1/releases/tag/L1) |
-| L2 | Статический UI: виджеты, layout, тема Material 3 | [tree/L2](../../tree/L2) | [L2](../../releases/tag/L2) |
-| L3 | Навигация go_router, формы, валидация | [tree/L3](../../tree/L3) · [изменения L2→L3](../../compare/L2...L3) | [L3](../../releases/tag/L3) |
-| L4 | State (provider) + Repository, mock-хранилища | [tree/L4](../../tree/L4) · [изменения L3→L4](../../compare/L3...L4) | [L4](../../releases/tag/L4) |
-| L5 | Собственный backend (Dart + SQLite), JWT, HTTP-хранилища | [tree/L5](../../tree/L5) · [изменения L4→L5](../../compare/L4...L5) | [L5](../../releases/tag/L5) |
+| L2 | Статический UI: виджеты, layout, тема Material 3 | [tree/L2](https://github.com/anastasia56yy/PAM-BizMatch/tree/L2) | [L2](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L2) |
+| L3 | Навигация go_router, формы, валидация | [tree/L3](https://github.com/anastasia56yy/PAM-BizMatch/tree/L3) · [изменения L2→L3](https://github.com/anastasia56yy/PAM-BizMatch/compare/L2...L3) | [L3](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L3) |
+| L4 | State (provider) + Repository, mock-хранилища | [tree/L4](https://github.com/anastasia56yy/PAM-BizMatch/tree/L4) · [изменения L3→L4](https://github.com/anastasia56yy/PAM-BizMatch/compare/L3...L4) | [L4](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L4) |
+| L5 | Собственный backend (Dart + SQLite), JWT, HTTP-хранилища | [tree/L5](https://github.com/anastasia56yy/PAM-BizMatch/tree/L5) · [изменения L4→L5](https://github.com/anastasia56yy/PAM-BizMatch/compare/L4...L5) | [L5](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L5) |
 
 ## Запуск
 
