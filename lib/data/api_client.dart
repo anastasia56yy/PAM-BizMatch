@@ -31,13 +31,46 @@ class ApiClient {
     Object? body,
     required int okStatus,
     required T Function(Object? json) parse,
+  }) =>
+      _run(() async {
+        final request = http.Request(method, Uri.parse('$baseUrl$path'))
+          ..headers['Content-Type'] = 'application/json';
+        if (body != null) request.body = jsonEncode(body);
+        return request;
+      }, okStatus: okStatus, parse: parse, timeout: _timeout);
+
+  /// Задание 7: multipart-запрос (поле [field] — файл с диска).
+  /// Тот же скелет: Bearer, 401, три слоя; timeout длиннее и стоит НА
+  /// send(), иначе сервер, замёрзший ВО ВРЕМЯ передачи, не истечёт.
+  Future<Result<T>> upload<T>(
+    String path, {
+    required String field,
+    required String filePath,
+    required int okStatus,
+    required T Function(Object? json) parse,
+  }) =>
+      _run(
+          () async => http.MultipartRequest('POST', Uri.parse('$baseUrl$path'))
+            ..files.add(await http.MultipartFile.fromPath(field, filePath)),
+          okStatus: okStatus,
+          parse: parse,
+          timeout: _uploadTimeout);
+
+  static const _uploadTimeout = Duration(seconds: 20);
+
+  /// Общий скелет любого запроса: Bearer, timeout, вердикт по статусу
+  /// и три слоя отказа → Err(msg).
+  Future<Result<T>> _run<T>(
+    Future<http.BaseRequest> Function() build, {
+    required int okStatus,
+    required T Function(Object? json) parse,
+    required Duration timeout,
   }) async {
     try {
-      final request = http.Request(method, Uri.parse('$baseUrl$path'))
-        ..headers.addAll(await _headers());
-      if (body != null) request.body = jsonEncode(body);
+      final request = await build();
+      request.headers['Authorization'] = 'Bearer ${await tokens.read() ?? ''}';
       final res = await http.Response.fromStream(
-          await _client.send(request).timeout(_timeout)); // timeout обязателен
+          await _client.send(request).timeout(timeout)); // timeout обязателен
 
       if (res.statusCode == 401) return Err(await _sessionDied());
       if (res.statusCode != okStatus) {
@@ -55,13 +88,10 @@ class ApiClient {
       return const Err('Ответ не тот, что обещан'); // слой 3: тело-сюрприз
     } on TypeError {
       return const Err('Ответ не тот, что обещан');
+    } on FileSystemException {
+      return const Err('Файл не удалось прочитать'); // upload: файл исчез
     }
   }
-
-  Future<Map<String, String>> _headers() async => {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${await tokens.read() ?? ''}',
-      };
 
   /// 401 = пропуск умер: token выбрасывается (C9), корень навигирует.
   Future<String> _sessionDied() async {

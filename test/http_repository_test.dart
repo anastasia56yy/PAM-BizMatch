@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +7,8 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:biz_match/data/api_client.dart';
+import 'package:biz_match/data/file_api.dart';
+import 'package:biz_match/data/profile.dart';
 import 'package:biz_match/data/http_repositories.dart';
 import 'package:biz_match/data/result.dart';
 import 'package:biz_match/data/token_store.dart';
@@ -103,5 +106,48 @@ void main() {
     expect(url!.path, '/profiles');
     expect(url!.queryParameters,
         {'page': '2', 'limit': '20', 'search': 'Телеком'});
+  });
+
+  // ── Задание 7: фото и upload ───────────────────────────────────────────
+
+  test('photo_url: из JSON в Profile и обратно', () {
+    final p = Profile.fromJson({..._profile, 'photo_url': '/avatars/01.jpg'});
+    expect(p.photoUrl, '/avatars/01.jpg');
+    expect(p.toJson()['photo_url'], '/avatars/01.jpg');
+    expect(Profile.fromJson(_profile).photoUrl, ''); // старый сервер — без фото
+  });
+
+  FileApi files(MockClientHandler handler) => FileApi(
+      ApiClient('http://api', tokens, client: MockClient(handler)));
+
+  test('upload: multipart с Bearer на POST /files → относительный url',
+      () async {
+    final file = File('${Directory.systemTemp.path}/bizmatch_avatar.jpg')
+      ..writeAsBytesSync([0xFF, 0xD8, 0xFF, 0xE0, 1, 2, 3]);
+    late http.Request seen;
+    final r = await files((req) async {
+      seen = req;
+      return _json({'id': 7, 'url': '/files/7'}, 201);
+    }).upload(file.path);
+    expect((r as Ok).value, '/files/7');
+    expect(seen.url.path, '/files');
+    expect(seen.headers['Authorization'], 'Bearer valid-token');
+    expect(seen.headers['content-type'], startsWith('multipart/form-data'));
+    expect(latin1.decode(seen.bodyBytes), contains('name="file"'));
+  });
+
+  test('upload: 400 «больше 5 МБ» → русское сообщение', () async {
+    final file = File('${Directory.systemTemp.path}/bizmatch_big.jpg')
+      ..writeAsBytesSync([1, 2, 3]);
+    final r = await files((_) async => _json(
+        {'error': {'code': 'VALIDATION_ERROR', 'message': 'File is larger than 5 MB'}},
+        400)).upload(file.path);
+    expect((r as Err).msg, 'Отправленные данные недействительны');
+  });
+
+  test('upload: файла нет на диске → Err, а не crash', () async {
+    final r = await files((_) async => _json({}, 201))
+        .upload('${Directory.systemTemp.path}/no_such_file.jpg');
+    expect((r as Err).msg, 'Файл не удалось прочитать');
   });
 }

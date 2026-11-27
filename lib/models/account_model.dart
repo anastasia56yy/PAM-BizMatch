@@ -1,20 +1,27 @@
 import 'package:flutter/foundation.dart';
 
 import '../data/account_repository.dart';
+import '../data/file_api.dart';
 import '../data/profile.dart';
 import '../data/result.dart';
 
 /// Собственный профиль: «Мой профиль» показывает, форма редактирования пишет.
 class AccountModel extends ChangeNotifier {
-  AccountModel(this._repository);
+  AccountModel(this._repository, [this._files]);
 
   final AccountRepository _repository;
+  final FileApi? _files; // Задание 7: загрузка аватарки
 
   bool _loading = false;
   String? _error;
   Profile? _me;
 
+  bool _uploading = false;
+
   bool get isLoading => _loading;
+
+  /// Аватарка летит на сервер — экран показывает индикатор на фото.
+  bool get isUploading => _uploading;
   String? get error => _error;
   Profile? get me => _me;
 
@@ -30,6 +37,26 @@ class AccountModel extends ChangeNotifier {
     }
     _loading = false;
     notifyListeners();
+  }
+
+  /// Новая аватарка: файл → POST /files → url → PUT /me с photo_url.
+  /// null — успех, строка — текст ошибки (как в save).
+  Future<String?> changePhoto(String filePath) async {
+    final me = _me;
+    final files = _files;
+    if (me == null || files == null || _uploading) return null;
+    _uploading = true;
+    notifyListeners();
+    final String? error;
+    switch (await files.upload(filePath)) {
+      case Ok(:final value):
+        error = await save(me.copyWith(photoUrl: value));
+      case Err(:final msg):
+        error = msg;
+    }
+    _uploading = false;
+    notifyListeners();
+    return error;
   }
 
   Future<String?> save(Profile updated) async {

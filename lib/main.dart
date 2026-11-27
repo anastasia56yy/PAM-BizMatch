@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
+import 'config.dart';
 import 'data/api_client.dart';
 import 'data/auth_api.dart';
+import 'data/file_api.dart';
 import 'data/http_repositories.dart';
 import 'data/token_store.dart';
 import 'models/account_model.dart';
@@ -12,10 +14,6 @@ import 'models/meetings_model.dart';
 import 'models/profiles_model.dart';
 import 'models/shortlist_model.dart';
 import 'router.dart';
-
-/// Адрес backend-а: эмулятор Android видит ноутбук как 10.0.2.2;
-/// на десктопе — localhost, на телефоне — IP ноутбука в локальной сети.
-const apiBase = 'http://10.0.2.2:8080';
 
 /// Корень композиции: ЗДЕСЬ (и только здесь) выбирается источник данных.
 Future<void> main() async {
@@ -44,7 +42,8 @@ List<SingleChildWidget> appProviders(ApiClient api) => [
       ChangeNotifierProvider(
           create: (_) => MeetingsModel(HttpMeetingRepository(api))..load()),
       ChangeNotifierProvider(
-          create: (_) => AccountModel(HttpAccountRepository(api))..load()),
+          create: (_) =>
+              AccountModel(HttpAccountRepository(api), FileApi(api))..load()),
       ChangeNotifierProvider(create: (_) => ShortlistModel()),
     ];
 

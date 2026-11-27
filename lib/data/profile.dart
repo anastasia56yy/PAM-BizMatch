@@ -36,6 +36,10 @@ class Profile {
   final String phone;
   final String linkedIn;
 
+  /// Фото: ОТНОСИТЕЛЬНЫЙ путь на сервере (/avatars/… или /files/…),
+  /// пусто — фото нет, показываются инициалы (Задание 7).
+  final String photoUrl;
+
   const Profile(
     this.id,
     this.name,
@@ -52,6 +56,7 @@ class Profile {
     this.email = '',
     this.phone = '',
     this.linkedIn = '',
+    this.photoUrl = '',
   });
 
   // ── Граница JSON (L5): язык сервера ↔ доменная модель ────────────────
@@ -73,6 +78,7 @@ class Profile {
         email: j['email'] as String? ?? '',
         phone: j['phone'] as String? ?? '',
         linkedIn: j['linkedin'] as String? ?? '',
+        photoUrl: j['photo_url'] as String? ?? '',
       );
 
   /// Без id — идентичность даёт сервер (C8).
@@ -91,6 +97,7 @@ class Profile {
         'email': email,
         'phone': phone,
         'linkedin': linkedIn,
+        'photo_url': photoUrl,
       };
 
   /// «Тот же профиль, другие поля»: create даёт id, форма меняет данные.
@@ -105,6 +112,7 @@ class Profile {
     String? email,
     String? phone,
     String? linkedIn,
+    String? photoUrl,
   }) =>
       Profile(
         id ?? this.id,
@@ -122,5 +130,6 @@ class Profile {
         email: email ?? this.email,
         phone: phone ?? this.phone,
         linkedIn: linkedIn ?? this.linkedIn,
+        photoUrl: photoUrl ?? this.photoUrl,
       );
 }
