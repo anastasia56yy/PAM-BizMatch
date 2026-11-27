@@ -15,6 +15,7 @@ Flutter-проект дисциплины **PAM** (Программирован�
 | L3 | Навигация go_router, формы, валидация | [tree/L3](https://github.com/anastasia56yy/PAM-BizMatch/tree/L3) · [изменения L2→L3](https://github.com/anastasia56yy/PAM-BizMatch/compare/L2...L3) | [L3](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L3) |
 | L4 | State (provider) + Repository, mock-хранилища | [tree/L4](https://github.com/anastasia56yy/PAM-BizMatch/tree/L4) · [изменения L3→L4](https://github.com/anastasia56yy/PAM-BizMatch/compare/L3...L4) | [L4](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L4) |
 | L5 | Собственный backend (Dart + SQLite), JWT, HTTP-хранилища | [tree/L5](https://github.com/anastasia56yy/PAM-BizMatch/tree/L5) · [изменения L4→L5](https://github.com/anastasia56yy/PAM-BizMatch/compare/L4...L5) | [L5](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L5) |
+| L6 | Финальная презентация проекта: итоговый отчёт | [tree/L6](https://github.com/anastasia56yy/PAM-BizMatch/tree/L6) | [L6](https://github.com/anastasia56yy/PAM-BizMatch/releases/tag/L6) |
 
 ## Запуск
 
