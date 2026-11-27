@@ -14,10 +14,11 @@ void seedNewUser(Database db, int userId) {
     db.execute(
         'INSERT INTO profiles (user_id, name, title, company, industry, city, '
         'goal, experience_years, skills, about, ai_score, ai_reason, '
-        'created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        'photo_url, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         [
           userId, c.name, c.title, c.company, c.industry, c.city, c.goal,
-          c.exp, jsonEncode(c.skills), c.about, c.score, c.reason, now, now,
+          c.exp, jsonEncode(c.skills), c.about, c.score, c.reason,
+          avatarOf(_candidates.indexOf(c)), now, now,
         ]);
     ids.add(db.lastInsertRowId);
   }
@@ -59,6 +60,20 @@ void seedNewUser(Database db, int userId) {
         userId, ids[0], _candidates[0].name, 'Обсуждение seed-раунда',
         meetingDate, 45, 'online', 'Подготовлю pitch deck.', now, now,
       ]);
+}
+
+/// Портрет кандидата: рисованный, лежит в server/avatars, отдаётся /avatars/NN.jpg.
+String avatarOf(int index) =>
+    '/avatars/${(index + 1).toString().padLeft(2, '0')}.jpg';
+
+/// Кандидаты, созданные до появления фото (Задание 7), получают портрет
+/// по имени — один раз, при запуске; уже заданное фото не трогается.
+void backfillAvatars(Database db) {
+  for (var i = 0; i < _candidates.length; i++) {
+    db.execute(
+        "UPDATE profiles SET photo_url = ? WHERE name = ? AND photo_url = ''",
+        [avatarOf(i), _candidates[i].name]);
+  }
 }
 
 typedef _C = ({

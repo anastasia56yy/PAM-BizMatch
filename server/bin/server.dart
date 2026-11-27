@@ -16,6 +16,7 @@ Future<void> main() async {
   final port = int.parse(Platform.environment['PORT'] ?? '8080');
   final secret = Platform.environment['JWT_SECRET'] ?? 'dev-secret-change-me';
   final db = openDatabase(Platform.environment['DB_PATH'] ?? 'app.db');
+  backfillAvatars(db);
 
   final auth = Auth(db, secret, onUserCreated: seedNewUser);
   final files = FilesModule(db);
@@ -33,7 +34,9 @@ Future<void> main() async {
     ..mount('/conversations', protected(conversationsModule(db).router))
     ..mount('/meetings', protected(meetingsModule(db).router))
     ..mount('/me', protected(MeModule(db).router))
-    ..mount('/files', _filesHandler(protected(files.uploadRouter), files));
+    ..mount('/files', _filesHandler(protected(files.uploadRouter), files))
+    // портреты демо-кандидатов — статические файлы сервера
+    ..get('/avatars/<name|[0-9]+\.jpg>', _avatar);
 
   final handler = const Pipeline()
       .addMiddleware(logRequests())
@@ -43,6 +46,16 @@ Future<void> main() async {
 
   final server = await io.serve(handler, InternetAddress.anyIPv4, port);
   print('BizMatch API listening on http://localhost:${server.port}');
+}
+
+/// GET /avatars/NN.jpg — портрет из папки server/avatars.
+Future<Response> _avatar(Request request, String name) async {
+  final file = File('avatars/$name');
+  if (!await file.exists()) return notFound('Avatar not found');
+  return Response.ok(file.openRead(), headers: {
+    'content-type': 'image/jpeg',
+    'cache-control': 'public, max-age=86400',
+  });
 }
 
 /// GET /files/{id} открыт, POST /files требует token.

@@ -15,7 +15,19 @@ Database openDatabase(String path) {
   for (final statement in [...schema, ...themeSchema]) {
     db.execute(statement);
   }
+  // Задание 7: фото добавлено к уже существующим таблицам. CREATE TABLE
+  // IF NOT EXISTS их не изменит — поэтому маленькая миграция вместо
+  // «удалите app.db»: колонка добавляется, только если её ещё нет.
+  addColumnIfMissing(db, 'profiles', 'photo_url', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'me_profiles', 'photo_url', "TEXT NOT NULL DEFAULT ''");
   return db;
+}
+
+void addColumnIfMissing(Database db, String table, String column, String type) {
+  final exists = db
+      .select('PRAGMA table_info($table)')
+      .any((row) => row['name'] == column);
+  if (!exists) db.execute('ALTER TABLE $table ADD COLUMN $column $type');
 }
 
 /// Схема применяется при каждом запуске. CREATE TABLE IF NOT EXISTS:

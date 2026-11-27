@@ -25,6 +25,7 @@ const themeSchema = [
        about TEXT NOT NULL DEFAULT '',
        ai_score INTEGER NOT NULL DEFAULT 0,
        ai_reason TEXT NOT NULL DEFAULT '',
+       photo_url TEXT NOT NULL DEFAULT '',
        created_at TEXT NOT NULL,
        updated_at TEXT NOT NULL)''',
   '''CREATE TABLE IF NOT EXISTS conversations (
@@ -63,7 +64,8 @@ const themeSchema = [
        about TEXT NOT NULL DEFAULT '',
        email TEXT NOT NULL DEFAULT '',
        phone TEXT NOT NULL DEFAULT '',
-       linkedin TEXT NOT NULL DEFAULT '')''',
+       linkedin TEXT NOT NULL DEFAULT '',
+       photo_url TEXT NOT NULL DEFAULT '')''',
 ];
 
 /// GET/POST /profiles, GET/PUT/DELETE /profiles/{id} — подбор кандидатов.
@@ -81,6 +83,7 @@ CrudModule profilesModule(Database db) => CrudModule(db,
       Field('about', FieldType.text),
       Field('ai_score', FieldType.integer),
       Field('ai_reason', FieldType.text),
+      Field('photo_url', FieldType.text), // относительный путь: /avatars/… или /files/…
     ],
     searchColumns: const ['name', 'title', 'company', 'industry', 'skills'],
     orderBy: 'ai_score DESC, id');
@@ -138,7 +141,7 @@ class MeModule {
     }
     // email здесь — рабочий контакт профиля, адрес входа он не меняет
     const texts = ['title', 'company', 'industry', 'city', 'goal', 'about',
-        'email', 'phone', 'linkedin'];
+        'email', 'phone', 'linkedin', 'photo_url'];
     for (final f in texts) {
       if (body[f] != null && body[f] is! String) {
         return validationError('$f has an invalid value');
@@ -186,6 +189,7 @@ class MeModule {
       'about': p?['about'] ?? '',
       'phone': p?['phone'] ?? '',
       'linkedin': p?['linkedin'] ?? '',
+      'photo_url': p?['photo_url'] ?? '', // аватарка: /files/{id} после upload
     };
   }
 }
