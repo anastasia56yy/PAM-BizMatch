@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../data/meeting.dart';
 import '../models/meetings_model.dart';
+import '../models/profiles_model.dart';
 import '../utils/validators.dart';
 import '../widgets/error_view.dart';
 import '../widgets/initials_avatar.dart';
@@ -15,6 +16,7 @@ class MeetingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<MeetingsModel>();
+    final profiles = context.watch<ProfilesModel>(); // фото собеседника
     final Widget body;
     if (model.isLoading) {
       body = const LoadingView();
@@ -45,7 +47,9 @@ class MeetingsScreen extends StatelessWidget {
             confirmDismiss: (_) => _cancel(context, m),
             child: Card(
               child: ListTile(
-                leading: InitialsAvatar(name: m.profileName),
+                leading: InitialsAvatar(
+                    name: m.profileName,
+                    photoUrl: profiles.byId(m.profileId)?.photoUrl ?? ''),
                 title: Text(m.topic),
                 subtitle: Text('${m.profileName}\n'
                     '${formatDate(m.date)} · ${m.durationMin} мин · '

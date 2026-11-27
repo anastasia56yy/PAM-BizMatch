@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/chats_model.dart';
+import '../models/profiles_model.dart';
 import '../widgets/initials_avatar.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -61,7 +62,14 @@ class _ChatScreenState extends State<ChatScreen> {
         titleSpacing: 0,
         title: ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: InitialsAvatar(name: c.name, radius: 18),
+          leading: InitialsAvatar(
+              name: c.name,
+              radius: 18,
+              photoUrl: context
+                      .watch<ProfilesModel>()
+                      .byId(c.profileId)
+                      ?.photoUrl ??
+                  ''),
           title: Text(c.name, overflow: TextOverflow.ellipsis),
           subtitle: Text(c.company, overflow: TextOverflow.ellipsis),
         ),

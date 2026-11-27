@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/chats_model.dart';
+import '../models/profiles_model.dart';
 import '../widgets/error_view.dart';
 import '../widgets/initials_avatar.dart';
 
@@ -14,6 +15,7 @@ class ChatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final model = context.watch<ChatsModel>();
+    final profiles = context.watch<ProfilesModel>(); // фото собеседника
     final Widget body;
     if (model.isLoading) {
       body = const LoadingView();
@@ -33,7 +35,9 @@ class ChatsScreen extends StatelessWidget {
           final c = chats[index];
           return ListTile(
             key: ValueKey(c.id),
-            leading: InitialsAvatar(name: c.name),
+            leading: InitialsAvatar(
+                name: c.name,
+                photoUrl: profiles.byId(c.profileId)?.photoUrl ?? ''),
             title: Text(c.name),
             subtitle: Text(c.lastMessage,
                 maxLines: 1, overflow: TextOverflow.ellipsis),

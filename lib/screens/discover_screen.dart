@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../config.dart';
 import '../data/profile.dart';
 import '../models/chats_model.dart';
 import '../models/profiles_model.dart';
@@ -101,12 +102,24 @@ class _SwipeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            height: 180,
+            height: 280,
             color: scheme.primaryContainer,
             alignment: Alignment.center,
             child: Stack(
               children: [
-                Center(child: InitialsAvatar(name: profile.name, radius: 56)),
+                // Задание 7: фото с сервера во всю шапку карточки;
+                // нет фото или сервер молчит — инициалы, как раньше
+                Positioned.fill(
+                  child: profile.photoUrl.isEmpty
+                      ? Center(
+                          child: InitialsAvatar(name: profile.name, radius: 56))
+                      : Image.network('$apiBase${profile.photoUrl}',
+                          fit: BoxFit.cover,
+                          alignment: const Alignment(0, -0.5),
+                          errorBuilder: (_, _, _) => Center(
+                              child: InitialsAvatar(
+                                  name: profile.name, radius: 56))),
+                ),
                 Positioned(
                   top: 12,
                   right: 12,

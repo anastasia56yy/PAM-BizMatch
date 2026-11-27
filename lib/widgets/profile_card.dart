@@ -28,7 +28,7 @@ class ProfileCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  InitialsAvatar(name: profile.name),
+                  InitialsAvatar(name: profile.name, photoUrl: profile.photoUrl),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

@@ -65,7 +65,8 @@ class ProfileDetailScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              InitialsAvatar(name: profile.name, radius: 40),
+              InitialsAvatar(
+                  name: profile.name, radius: 40, photoUrl: profile.photoUrl),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../data/auth_api.dart';
@@ -22,6 +24,26 @@ class MyProfileScreen extends StatefulWidget {
 class _MyProfileScreenState extends State<MyProfileScreen> {
   bool _visibleInAi = true; // эфемерное: переключатель экрана → setState
 
+  /// Задание 7: фото из галереи → upload на сервер → photo_url в /me.
+  Future<void> _pickPhoto() async {
+    final XFile? picked;
+    try {
+      picked = await ImagePicker().pickImage(
+          source: ImageSource.gallery, maxWidth: 800, imageQuality: 85);
+    } on PlatformException {
+      _notify('Галерея недоступна');
+      return;
+    }
+    if (picked == null || !mounted) return; // пользователь передумал
+    final error = await context.read<AccountModel>().changePhoto(picked.path);
+    if (!mounted) return; // экран мог закрыться, пока файл летел
+    _notify(error ?? 'Фото профиля обновлено');
+  }
+
+  void _notify(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -43,7 +65,27 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       body = ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Center(child: InitialsAvatar(name: p.name, radius: 48)),
+          Center(
+            child: Stack(
+              clipBehavior: Clip.none, // кнопка камеры выступает за круг
+              children: [
+                InitialsAvatar(name: p.name, radius: 48, photoUrl: p.photoUrl),
+                if (account.isUploading)
+                  const Positioned.fill(
+                      child: CircularProgressIndicator(strokeWidth: 3)),
+                Positioned(
+                  right: -4,
+                  bottom: -4,
+                  child: IconButton.filled(
+                    iconSize: 18,
+                    tooltip: 'Сменить фото',
+                    onPressed: account.isUploading ? null : _pickPhoto,
+                    icon: const Icon(Icons.photo_camera),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
           Text(p.name, textAlign: TextAlign.center, style: text.titleLarge),
           Text('${p.title} · ${p.company}',

@@ -106,7 +106,8 @@ class _MeetingRequestScreenState extends State<MeetingRequestScreen> {
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: InitialsAvatar(name: profile.name),
+              leading: InitialsAvatar(
+                  name: profile.name, photoUrl: profile.photoUrl),
               title: Text(profile.name),
               subtitle: Text('${profile.title} · ${profile.company}'),
             ),
